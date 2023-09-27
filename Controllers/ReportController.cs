@@ -18,11 +18,11 @@ namespace web_panel_api.Controllers
         public ReportController(IWalletReporter rpt) { _rpt = rpt; }
 
         [HttpGet("wallet")]
-        public async Task<WalletReport> GetWalletStat()
+        public async Task<WalletReport> GetWalletStat(DateDto info)
         {
             var context = new clientContext();
             var all = context.PayHistories
-                .Where(e => e.PaymentMethod != "referrals")
+                .Where(e => e.PaymentMethod != "referrals" && e.PaidAt != null && e.PaidAt >= info.FirstTime && e.PaidAt <= info.LastTime)
                 .AsEnumerable()
                 .GroupBy(e => e.PaymentType)
                 .ToLookup(g => g.Key, g => g.GroupBy(ph => ph.Currency).ToLookup(phc => phc.Key, phc => phc.Sum(el => el.Price)));
