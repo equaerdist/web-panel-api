@@ -16,14 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Current Database: `client`
---
-
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `client` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
-
-USE `client`;
-
---
 -- Table structure for table `pay_history`
 --
 
@@ -43,7 +35,7 @@ CREATE TABLE `pay_history` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `pay_history_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -282,14 +274,14 @@ CREATE TABLE `users_keys` (
   `server_Id` int(11) DEFAULT NULL,
   `key` varchar(255) DEFAULT NULL,
   `status` tinyint(4) DEFAULT NULL,
-  `date_end` datetime DEFAULT NULL,
+  `date_end` datetime NOT NULL,
   `create_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   KEY `server_Id` (`server_Id`),
   CONSTRAINT `users_keys_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `users_keys_ibfk_2` FOREIGN KEY (`server_Id`) REFERENCES `servers` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -298,6 +290,7 @@ CREATE TABLE `users_keys` (
 
 LOCK TABLES `users_keys` WRITE;
 /*!40000 ALTER TABLE `users_keys` DISABLE KEYS */;
+INSERT INTO `users_keys` VALUES (1,1,NULL,NULL,NULL,'2023-09-27 00:00:00',NULL);
 /*!40000 ALTER TABLE `users_keys` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -370,4 +363,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-22 20:56:45
+-- Dump completed on 2023-09-27 19:39:29
