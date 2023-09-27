@@ -10,6 +10,7 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using web_panel_api.Services.Referral;
+using web_panel_api.Services.Statictics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     }
 );
 builder.Services.AddScoped<IReferralService, ReferralService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddAuthorization();
 builder.Services.AddDbContext<clientContext>();
 builder.Services.AddAutoMapper(typeof(MapperProfile));

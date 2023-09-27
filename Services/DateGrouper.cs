@@ -4,22 +4,38 @@ namespace web_panel_api.Services
 {
     public class DateGrouper
     {
-        public static DateTime GroupByDay(DateTime dateTime)
+        private static DateTime GroupByDay(DateTime dateTime)
         {
             return new DateTime(
             dateTime.Year,
             dateTime.Month,
             dateTime.Day);
         }
-        public static DateTime GroupByMonth(DateTime dateTime) {
+        private static DateTime GroupByMonth(DateTime dateTime) {
             return new DateTime(
             dateTime.Year,
             dateTime.Month, 1);
         }
-        public static DateTime GroupByYear(DateTime dateTime)
+        private static DateTime GroupByYear(DateTime dateTime)
         {
             return new DateTime(
             dateTime.Year, 1, 1);
+        }
+        public static  DateTime GroupDate(string group, DateTime manip)
+        {
+            var result = new DateTime();
+            switch (group)
+            {
+                case "day":
+                    result = DateGrouper.GroupByDay(manip); break;
+                case "month":
+                    result = DateGrouper.GroupByMonth(manip); break;
+                case "year":
+                    result = DateGrouper.GroupByYear(manip); break;
+                default:
+                    throw new ArgumentException();
+            }
+            return result;
         }
     }
 }
