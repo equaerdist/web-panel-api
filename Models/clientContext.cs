@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using web_panel_api.Services;
 
 namespace web_panel_api.Models
 {
     public partial class clientContext : DbContext
     {
-    
-
         public clientContext()
         {
-           
         }
 
         public clientContext(DbContextOptions<clientContext> options)
@@ -36,6 +32,7 @@ namespace web_panel_api.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseMySql("host=localhost;port=3306;database=client;uid=root;convertzerodatetime=True", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.27-mariadb"));
             }
         }
@@ -408,8 +405,7 @@ namespace web_panel_api.Models
                     .HasConstraintName("users_keys_ibfk_2");
 
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.UsersKeys)
-                    .HasForeignKey(d => d.UserId)
+                    .WithOne(p => p.UsersKeys)
                     .HasConstraintName("users_keys_ibfk_1");
             });
 

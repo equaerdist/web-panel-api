@@ -7,7 +7,7 @@ namespace web_panel_api.Services.Statictics
 {
     public class StatisticsService : IStatisticsService
     {
-        private static void MapDataFromUsersAmountDictionary(GetStaticticsDto result, Dictionary<string, IEnumerable<DatePoint>> tempDictionary)
+        private static void MapDataFromPaidAmountDictionary(GetStaticticsDto result, Dictionary<string, IEnumerable<DatePoint>> tempDictionary)
         {
             if (tempDictionary.ContainsKey("rub"))
                 result.AmountOfRubPaid = tempDictionary["rub"];
@@ -18,8 +18,8 @@ namespace web_panel_api.Services.Statictics
             if (tempDictionary.ContainsKey("ton"))
                 result.AmountOfTonPaid = tempDictionary["ton"];
         }
-        
-        private static void MapDataFromPaidAmountDictionary(GetStaticticsDto result, Dictionary<string, IEnumerable<DatePoint>> tempDictionary)
+       
+        private static void MapDataFromUsersAmountDictionary(GetStaticticsDto result, Dictionary<string, IEnumerable<DatePoint>> tempDictionary)
         {
             if (tempDictionary.ContainsKey("rub"))
                 result.AmountOfUsersWhoPayRub = tempDictionary["rub"];

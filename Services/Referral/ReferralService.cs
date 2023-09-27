@@ -31,28 +31,13 @@ namespace web_panel_api.Services.Referral
             return result;
         }
         public ReferralService(IMapper mapper) { _mapper = mapper; }    
-        public async Task<IEnumerable<GetReferralDto>> GetReferralsForUser(string? searchTerm, int page, int pageSize, string sortParam, string sortOrder, string? childNode)
+        public async Task<IEnumerable<GetReferralDto>> GetReferralsForUser(string? searchTerm, int page, int pageSize, string sortParam, string sortOrder)
         {
 
             var ctx = new clientContext();
             var query = ctx.Users.AsQueryable();
 
-            if (!string.IsNullOrEmpty(childNode))
-            {
-                var parent = await ctx.Users
-                    .Include(u => u.ReferralsTreeChildren)
-                    .Where(u => u.Username.Equals(searchTerm) || u.FirstName.Equals(searchTerm))
-                    .SelectMany(u => u.ReferralsTreeChildren)
-                    .Include(tr => tr.Parent)
-                    .Select(tr => tr.Parent)
-                    .FirstOrDefaultAsync();
-                if (parent is not null)
-                    searchTerm = parent.Username;
-                else
-                    searchTerm = null;
-            }
             if (string.IsNullOrEmpty(searchTerm))
-
                 query = ctx.Users
                     .Include(u => u.ReferralsTreeChildren)
                     .Where(u => u.ReferralsTreeChildren.Count == 0)

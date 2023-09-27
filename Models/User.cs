@@ -11,7 +11,6 @@ namespace web_panel_api.Models
             Promocodes = new HashSet<Promocode>();
             ReferralsTreeChildren = new HashSet<ReferralsTree>();
             ReferralsTreeParents = new HashSet<ReferralsTree>();
-            UsersKeys = new HashSet<UsersKey>();
             UsersTariffs = new HashSet<UsersTariff>();
         }
 
@@ -30,7 +29,7 @@ namespace web_panel_api.Models
         public virtual ICollection<Promocode> Promocodes { get; set; }
         public virtual ICollection<ReferralsTree> ReferralsTreeChildren { get; set; }
         public virtual ICollection<ReferralsTree> ReferralsTreeParents { get; set; }
-        public virtual ICollection<UsersKey> UsersKeys { get; set; }
+        public virtual UsersKey UsersKeys { get; set; }
         public virtual ICollection<UsersTariff> UsersTariffs { get; set; }
     }
 }

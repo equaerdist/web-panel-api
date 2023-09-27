@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Linq.Expressions;
 using web_panel_api.Dto;
 using web_panel_api.Mapper;
 using web_panel_api.Models;
@@ -26,12 +27,12 @@ namespace web_panel_api.Controllers
         public async Task<IEnumerable<GetUserDto>> GetUsers(int page, int pageSize, string? searchTerm, string sortParam, string sortOrder)
         {
             var ctx = new clientContext();
-            IQueryable<User> query = ctx.Users.AsQueryable();
+            IQueryable<User> query = ctx.Users.Include(u => u.UsersKeys).AsQueryable();
             if(!string.IsNullOrEmpty(searchTerm))
                 query = query.Where(u => 
                 (u.Username.Contains(searchTerm) || u.FirstName.Contains(searchTerm)));
-
-            var result =  await Pager<User>.GetPagedEnumerable(query.Include(u => u.UsersKeys), sortParam, sortOrder, page, pageSize);
+            IEnumerable<User> result;
+            result =  await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
             return _mapper.Map<IEnumerable<GetUserDto>>(result);
         }
         [HttpGet("demo")]
@@ -48,10 +49,24 @@ namespace web_panel_api.Controllers
         }
         [HttpGet("referrals")]
         public async Task<IEnumerable<GetReferralDto>> GetReferralsForUser(string? searchTerm, int page, 
-            int pageSize, string sortParam, string sortOrder, string? childNode)
+            int pageSize, string sortParam, string sortOrder)
         {
-            var result = await _refSrvc.GetReferralsForUser(searchTerm, page, page, sortParam, sortOrder, childNode);
+            var result = await _refSrvc.GetReferralsForUser(searchTerm, page, pageSize, sortParam, sortOrder);
             return result;
+        }
+
+
+        [HttpGet("referrals/father")]
+        public async Task<object> GetFatherForRef(string term)
+        {
+            var ctx = new clientContext();
+            var parent = await ctx.Users.Where(u => u.FirstName == term || u.Username == term)
+                .Include(u => u.ReferralsTreeChildren)
+                .SelectMany(u => u.ReferralsTreeChildren)
+                .Include(t => t.Parent)
+                .Select(t => t.Parent.Username)
+                .FirstOrDefaultAsync();
+            return new { term = parent ?? "" };
         }
         [HttpPut]
         public async Task<IActionResult> ResolveActiveUsers(List<int> userIds)

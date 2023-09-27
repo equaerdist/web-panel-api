@@ -17,7 +17,7 @@ namespace web_panel_api.Controllers
 
         public ReportController(IWalletReporter rpt) { _rpt = rpt; }
 
-        [HttpGet("wallet")]
+        [HttpPost("wallet")]
         public async Task<WalletReport> GetWalletStat(DateDto info)
         {
             var context = new clientContext();

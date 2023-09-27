@@ -10,7 +10,7 @@ namespace web_panel_api.Models
         public int? ServerId { get; set; }
         public string? Key { get; set; }
         public sbyte? Status { get; set; }
-        public DateTime? DateEnd { get; set; }
+        public DateTime DateEnd { get; set; }
         public DateTime? CreateAt { get; set; }
 
         public virtual Server? Server { get; set; }

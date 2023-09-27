@@ -1,4 +1,6 @@
-﻿namespace web_panel_api.Dto
+﻿using web_panel_api.Models;
+
+namespace web_panel_api.Dto
 {
     public class GetUserDto
     {
@@ -11,5 +13,6 @@
         public sbyte? StatusTariff { get; set; }
         public sbyte? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
+        public UsersKey UsersKeys { get; set; } = null!;
     }
 }
