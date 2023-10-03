@@ -30,19 +30,30 @@ namespace web_panel_api.Services.Statictics
             if (tempDictionary.ContainsKey("ton"))
                 result.AmountOfUsersWhoPayTon = tempDictionary["ton"];
         }
-        public async Task<GetStaticticsDto> GetStats(DateDto dates, string group)
+        public async Task<GetStaticticsDto> GetStats(DateDto dates, string group, string offset)
         {
             var ctx = new clientContext();
             var result = new GetStaticticsDto();
-            var temporary = await ctx.Users.Where(u => u.CreatedAt <= dates.LastTime
-            && u.CreatedAt >= dates.FirstTime).ToListAsync();
+            List<User> temporary;
+            if (offset == "interval")
+                temporary = await ctx.Users
+                 .Where(u => u.CreatedAt <= dates.LastTime
+                          && u.CreatedAt >= dates.FirstTime)
+                 .ToListAsync();
+            else
+                temporary = await ctx.Users.ToListAsync();
+
             foreach (var user in temporary)
                 user.CreatedAt = DateGrouper.GroupDate(group, user.CreatedAt);
             result.AmountOfCreatedUsers = temporary
                 .GroupBy(u => u.CreatedAt).Select(g => new DatePoint(g.Key, g.Count())).OrderBy(dt => dt.Time);
-            var temp = ctx.PayHistories
-               .Where(ph => ph.PaidAt != null && ph.PaidAt <= dates.LastTime && ph.PaidAt >= dates.FirstTime && ph.PaymentMethod == "tariff")
-               .AsEnumerable()
+
+            var payHistories = ctx.PayHistories.Where(ph => ph.PaidAt != null && ph.PaymentMethod == "tariff");
+            if (offset == "interval")
+                payHistories = payHistories
+                    .Where(ph => ph.PaidAt <= dates.LastTime && ph.PaidAt >= dates.FirstTime);
+
+            var temp = payHistories.AsEnumerable()
               .GroupBy(ph => ph.Currency);
 
             foreach (var currencyGroup in temp)
