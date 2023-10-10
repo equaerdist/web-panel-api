@@ -22,5 +22,21 @@ namespace web_panel_api.Services
             result = user => user.ReferralsTreeParents.Count(t => t.Child.Status == status);
             return result;
         }
-     }
+        public static Expression<Func<web_panel_api.Models.god_eyes.User, object>> GetSecondSelector(string sortParam)
+        {
+            Expression<Func<web_panel_api.Models.god_eyes.User, object>> result;
+            bool status;
+            switch (sortParam)
+            {
+                case "active":
+                    status = true;
+                    break;
+                default:
+                    status = false;
+                    break;
+            }
+            result = user => user.ReferralParents.Count(t => t.Child.Status == status);
+            return result;
+        }
+    }
 }

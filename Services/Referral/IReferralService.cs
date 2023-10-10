@@ -8,6 +8,7 @@ namespace web_panel_api.Services.Referral
             int page, 
             int pageSize, 
             string sortParam, 
-            string sortOrder);
+            string sortOrder,
+            string project);
     }
 }

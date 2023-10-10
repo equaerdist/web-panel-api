@@ -49,24 +49,39 @@ namespace web_panel_api.Controllers
         }
         [HttpGet("referrals")]
         public async Task<IEnumerable<GetReferralDto>> GetReferralsForUser(string? searchTerm, int page, 
-            int pageSize, string sortParam, string sortOrder)
+            int pageSize, string sortParam, string sortOrder, string project)
         {
-            var result = await _refSrvc.GetReferralsForUser(searchTerm, page, pageSize, sortParam, sortOrder);
+            var result = await _refSrvc.GetReferralsForUser(searchTerm, page, pageSize, sortParam, sortOrder, project);
             return result;
         }
 
 
         [HttpGet("referrals/father")]
-        public async Task<object> GetFatherForRef(string term)
+        public async Task<object> GetFatherForRef(string term, string project)
         {
-            var ctx = new clientContext();
-            var parent = await ctx.Users.Where(u => u.FirstName == term || u.Username == term)
-                .Include(u => u.ReferralsTreeChildren)
-                .SelectMany(u => u.ReferralsTreeChildren)
-                .Include(t => t.Parent)
-                .Select(t => t.Parent.Username)
-                .FirstOrDefaultAsync();
-            return new { term = parent ?? "" };
+            if (project.Equals("poleteli_vpn"))
+            {
+                var ctx = new clientContext();
+                var parent = await ctx.Users.Where(u => u.FirstName == term || u.Username == term)
+                    .Include(u => u.ReferralsTreeChildren)
+                    .SelectMany(u => u.ReferralsTreeChildren)
+                    .Include(t => t.Parent)
+                    .Select(t => t.Parent.Username)
+                    .FirstOrDefaultAsync();
+                return new { term = parent ?? "" };
+            }
+            else
+            {
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                var parent = await ctx.Users.Where(u => u.FirstName == term || u.Username == term)
+                    .Include(u => u.ReferralChild)
+                    .Select(u => u.ReferralChild)
+                    .Include(t => t.Parent)
+                    .Where(t => t.Parent != null)
+                    .Select(t => t.Parent.Username)
+                    .FirstOrDefaultAsync();
+                return new { term = parent ?? "" };
+            }
         }
         [HttpPut]
         public async Task<IActionResult> ResolveActiveUsers(List<int> userIds)
@@ -99,22 +114,44 @@ namespace web_panel_api.Controllers
             return NoContent();
         }
         [HttpPost("report")]
-        public async Task<IActionResult> GetExcelReport(DateDto info)
+        public async Task<IActionResult> GetExcelReport(DateDto info, string project)
         {
-            var ctx = new clientContext();
-            var query = await ctx.Users.Where(u => u.CreatedAt >= info.FirstTime && u.CreatedAt <= info.LastTime).ToListAsync();
-            var dto = _mapper.Map<List<GetUserDto>>(query);
-            var result = await _prst.GenerateFileBytes<GetUserDto>(dto);
-            return File(result, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
+            if (project.Equals("poleteli_vpn"))
+            {
+                var ctx = new clientContext();
+                var query = await ctx.Users.Where(u => u.CreatedAt >= info.FirstTime && u.CreatedAt <= info.LastTime).ToListAsync();
+                var dto = _mapper.Map<List<GetUserDto>>(query);
+                var result = await _prst.GenerateFileBytes<GetUserDto>(dto);
+                return File(result, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
+            }
+            else
+            {
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                var query = await ctx.Users.Where(u => u.CreatedAt >= info.FirstTime && u.CreatedAt <= info.LastTime).ToListAsync();
+                var dto = _mapper.Map<List<GetUserDto>>(query);
+                var result = await _prst.GenerateFileBytes<GetUserDto>(dto);
+                return File(result, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
+            }
         }
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateUser(UpdateUserDto dto, int id)
+        public async Task<IActionResult> UpdateUser(UpdateUserDto dto, int id, string project)
         {
-            var ctx = new clientContext();
-            var userDatabase = await ctx.Users.FirstOrDefaultAsync(u => u.Id == id);
-            _mapper.Map(dto, userDatabase);
-            await ctx.SaveChangesAsync();
-            return NoContent();
+            if (project.Equals("poleteli_vpn"))
+            {
+                var ctx = new clientContext();
+                var userDatabase = await ctx.Users.FirstOrDefaultAsync(u => u.Id == id);
+                _mapper.Map(dto, userDatabase);
+                await ctx.SaveChangesAsync();
+                return NoContent();
+            }
+            else
+            {
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                var userDatabase = await ctx.Users.FirstOrDefaultAsync(u => u.Id == id);
+                _mapper.Map(dto, userDatabase);
+                await ctx.SaveChangesAsync();
+                return NoContent();
+            }
         }
     }
 }

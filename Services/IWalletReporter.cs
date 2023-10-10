@@ -5,6 +5,6 @@ namespace web_panel_api.Services
 {
     public interface IWalletReporter
     {
-        WalletReport GetReport(ILookup<string?, ILookup<string?, float?>> all, ILookup<string?, float?> frozen);
+        WalletReport GetReport(ILookup<string?, ILookup<string?, float?>> all, ILookup<string?, float?> frozen, string project);
     }
 }

@@ -18,20 +18,40 @@ namespace web_panel_api.Controllers
 
         public SettingsController(IMapper mpr) { _mpr = mpr; }
         [HttpGet]
-        public async Task<Setting?> GetSettings()
+        public async Task<IActionResult> GetSettings(string project)
         {
-            var ctx = new clientContext();
-            var settings = await ctx.Settings.FirstOrDefaultAsync();
-            return settings;
+            if (project.Equals("poleteli_vpn"))
+            {
+                var ctx = new clientContext();
+                var settings = await ctx.Settings.FirstOrDefaultAsync();
+                return Ok(settings);
+            }
+            else
+            {
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                var settings = await ctx.Settings.FirstOrDefaultAsync();
+                return Ok(settings);
+            }
         }
         [HttpPut]
-        public async Task<IActionResult> UpdateSettings(SettingDto newSet)
+        public async Task<IActionResult> UpdateSettings(SettingDto newSet, string project)
         {
-            var ctx = new clientContext();
-            var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Id == newSet.Id) ?? throw new ArgumentException("Сущности не существует");
-            _mpr.Map(newSet, setDb);
-            await ctx.SaveChangesAsync();
-            return NoContent();
+            if (project.Equals("poleteli_vpn"))
+            {
+                var ctx = new clientContext();
+                var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Id == newSet.Id) ?? throw new ArgumentException("Сущности не существует");
+                _mpr.Map(newSet, setDb);
+                await ctx.SaveChangesAsync();
+                return NoContent();
+            }
+            else
+            {
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Id == newSet.Id) ?? throw new ArgumentException("Сущности не существует");
+                _mpr.Map(newSet, setDb);
+                await ctx.SaveChangesAsync();
+                return NoContent();
+            }
         }
     }
 }

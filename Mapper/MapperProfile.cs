@@ -18,6 +18,10 @@ namespace web_panel_api.Mapper
             CreateMap<AddTariffDto, Tariff>();
             CreateMap<User, UserForStat>();
             CreateMap<PayHistory, PayHistoryForStat>();
+            CreateMap<web_panel_api.Models.god_eyes.User, GetReferralDto>();
+            CreateMap<web_panel_api.Models.god_eyes.User, UserForStat>();
+            CreateMap<web_panel_api.Models.god_eyes.User, GetUserDto>();
+            CreateMap<SettingDto, web_panel_api.Models.god_eyes.Setting>();
         }
 
     }
