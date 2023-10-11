@@ -16,6 +16,9 @@ namespace web_panel_api.Models
         public int? ReferralRewardLvl1 { get; set; }
         public int? ReferralRewardLvl2 { get; set; }
         public int? ReferralRewardLvl3 { get; set; }
-        public int? MinOutput { get; set; }
+        public int? MinOutputRub { get; set; }
+        public int? MinOutputDel { get; set; }
+        public int? MinOutputTon { get; set; }
+        public int? MinOutputUsdt { get; set; }
     }
 }

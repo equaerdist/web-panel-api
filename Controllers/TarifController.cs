@@ -28,7 +28,7 @@ namespace web_panel_api.Controllers
             var ctx = new clientContext();
             var query = ctx.Tariffs.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
-                query = query.Where(t => t.TariffName.Contains(searchTerm));
+                query = query.Where(t => (t.TariffName != null && t.TariffName.Contains(searchTerm)));
             return await Pager<Tariff>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
         }
         [HttpGet("promocodes")]
@@ -37,7 +37,7 @@ namespace web_panel_api.Controllers
             var ctx = new clientContext();
             var query = ctx.Promocodes.Include(p => p.Tariff).Where(p => p.UserId == null);
             if (!string.IsNullOrEmpty(searchTerm))
-                query = query.Where(p => p.ValueCode.Contains(searchTerm));
+                query = query.Where(p => (p.ValueCode != null && p.ValueCode.Contains(searchTerm)));
             return await Pager<Promocode>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
         }
         [HttpDelete("promocodes/{id:int}")]

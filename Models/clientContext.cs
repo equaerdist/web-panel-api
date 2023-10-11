@@ -19,6 +19,7 @@ namespace web_panel_api.Models
         public virtual DbSet<PayHistory> PayHistories { get; set; } = null!;
         public virtual DbSet<Promocode> Promocodes { get; set; } = null!;
         public virtual DbSet<ReferralsTree> ReferralsTrees { get; set; } = null!;
+        public virtual DbSet<SendMessage> SendMessages { get; set; } = null!;
         public virtual DbSet<Server> Servers { get; set; } = null!;
         public virtual DbSet<Setting> Settings { get; set; } = null!;
         public virtual DbSet<Tariff> Tariffs { get; set; } = null!;
@@ -32,6 +33,7 @@ namespace web_panel_api.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseMySql("host=localhost;port=3306;database=client;uid=root;convertzerodatetime=True", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.27-mariadb"));
             }
         }
@@ -47,6 +49,8 @@ namespace web_panel_api.Models
 
                 entity.UseCollation("utf8mb4_unicode_ci");
 
+                entity.HasIndex(e => e.TariffId, "tariff_id");
+
                 entity.HasIndex(e => e.UserId, "user_id");
 
                 entity.Property(e => e.Id)
@@ -58,8 +62,12 @@ namespace web_panel_api.Models
                     .HasColumnName("create_at");
 
                 entity.Property(e => e.Currency)
-                    .HasMaxLength(5)
+                    .HasMaxLength(10)
                     .HasColumnName("currency");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(255)
+                    .HasColumnName("description");
 
                 entity.Property(e => e.PaidAt)
                     .HasColumnType("datetime")
@@ -79,14 +87,22 @@ namespace web_panel_api.Models
                     .HasColumnType("tinyint(4)")
                     .HasColumnName("status_pay");
 
+                entity.Property(e => e.TariffId)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("tariff_id");
+
                 entity.Property(e => e.UserId)
                     .HasColumnType("bigint(20)")
                     .HasColumnName("user_id");
 
+                entity.HasOne(d => d.Tariff)
+                    .WithMany(p => p.PayHistories)
+                    .HasForeignKey(d => d.TariffId)
+                    .HasConstraintName("pay_history_ibfk_2");
+
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.PayHistories)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("pay_history_ibfk_1");
             });
 
@@ -96,7 +112,7 @@ namespace web_panel_api.Models
 
                 entity.UseCollation("utf8mb4_unicode_ci");
 
-                entity.HasIndex(e => e.TariffId, "promocodes_ibfk_2");
+                entity.HasIndex(e => e.TariffId, "tariff_id");
 
                 entity.HasIndex(e => e.UserId, "user_id");
 
@@ -147,17 +163,17 @@ namespace web_panel_api.Models
             {
                 entity.ToTable("referrals_tree");
 
-                entity.UseCollation("utf8mb4_unicode_ci");
-
-                entity.HasIndex(e => e.ChildId, "child_id");
+                entity.HasIndex(e => e.ChildrenId, "children_id");
 
                 entity.HasIndex(e => e.ParentId, "parent_id");
 
-                entity.Property(e => e.Id).HasColumnType("bigint(20)");
-
-                entity.Property(e => e.ChildId)
+                entity.Property(e => e.Id)
                     .HasColumnType("bigint(20)")
-                    .HasColumnName("Child_id");
+                    .HasColumnName("id");
+
+                entity.Property(e => e.ChildrenId)
+                    .HasColumnType("bigint(20)")
+                    .HasColumnName("children_id");
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
@@ -165,19 +181,48 @@ namespace web_panel_api.Models
 
                 entity.Property(e => e.ParentId)
                     .HasColumnType("bigint(20)")
-                    .HasColumnName("Parent_id");
+                    .HasColumnName("parent_id");
 
-                entity.HasOne(d => d.Child)
+                entity.HasOne(d => d.Children)
                     .WithMany(p => p.ReferralsTreeChildren)
-                    .HasForeignKey(d => d.ChildId)
+                    .HasPrincipalKey(p => p.ChatId)
+                    .HasForeignKey(d => d.ChildrenId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("referrals_tree_ibfk_2");
 
                 entity.HasOne(d => d.Parent)
                     .WithMany(p => p.ReferralsTreeParents)
+                    .HasPrincipalKey(p => p.ChatId)
                     .HasForeignKey(d => d.ParentId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("referrals_tree_ibfk_1");
+            });
+
+            modelBuilder.Entity<SendMessage>(entity =>
+            {
+                entity.ToTable("send_message");
+
+                entity.UseCollation("utf8mb4_unicode_ci");
+
+                entity.Property(e => e.Id)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("id");
+
+                entity.Property(e => e.DateCreate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("date_create");
+
+                entity.Property(e => e.Send)
+                    .HasColumnType("tinyint(4)")
+                    .HasColumnName("send");
+
+                entity.Property(e => e.Text)
+                    .HasColumnType("text")
+                    .HasColumnName("text");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(15)
+                    .HasColumnName("type");
             });
 
             modelBuilder.Entity<Server>(entity =>
@@ -190,22 +235,28 @@ namespace web_panel_api.Models
                     .HasColumnType("int(11)")
                     .HasColumnName("id");
 
-                entity.Property(e => e.Apiurl)
+                entity.Property(e => e.ApiUrl)
                     .HasMaxLength(255)
-                    .HasColumnName("apiurl");
+                    .HasColumnName("api_url");
 
-                entity.Property(e => e.Certsha256)
+                entity.Property(e => e.CertSha256)
                     .HasMaxLength(255)
-                    .HasColumnName("certsha256");
+                    .HasColumnName("cert_sha256");
 
                 entity.Property(e => e.CreatedAt)
                     .HasMaxLength(45)
                     .HasColumnName("created_at");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(45)
+                    .HasColumnName("name");
             });
 
             modelBuilder.Entity<Setting>(entity =>
             {
                 entity.ToTable("settings");
+
+                entity.UseCollation("utf8mb4_unicode_ci");
 
                 entity.Property(e => e.Id)
                     .HasColumnType("int(11)")
@@ -239,9 +290,21 @@ namespace web_panel_api.Models
                     .HasColumnType("int(11)")
                     .HasColumnName("commission_output_usdt");
 
-                entity.Property(e => e.MinOutput)
+                entity.Property(e => e.MinOutputDel)
                     .HasColumnType("int(11)")
-                    .HasColumnName("min_output");
+                    .HasColumnName("min_output_del");
+
+                entity.Property(e => e.MinOutputRub)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("min_output_rub");
+
+                entity.Property(e => e.MinOutputTon)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("min_output_ton");
+
+                entity.Property(e => e.MinOutputUsdt)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("min_output_usdt");
 
                 entity.Property(e => e.ReferralRewardLvl1)
                     .HasColumnType("int(11)")
@@ -289,8 +352,6 @@ namespace web_panel_api.Models
 
                 entity.UseCollation("utf8mb4_unicode_ci");
 
-                entity.HasIndex(e => e.PromocodeId, "promocode_id");
-
                 entity.Property(e => e.Id)
                     .HasColumnType("int(11)")
                     .HasColumnName("id");
@@ -304,13 +365,8 @@ namespace web_panel_api.Models
                     .HasColumnName("promocode_id");
 
                 entity.Property(e => e.UserId)
-                    .HasColumnType("bigint(20)")
+                    .HasColumnType("int(11)")
                     .HasColumnName("user_id");
-
-                entity.HasOne(d => d.Promocode)
-                    .WithMany(p => p.UsePromocodes)
-                    .HasForeignKey(d => d.PromocodeId)
-                    .HasConstraintName("use_promocodes_ibfk_1");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -318,6 +374,9 @@ namespace web_panel_api.Models
                 entity.ToTable("users");
 
                 entity.UseCollation("utf8mb4_unicode_ci");
+
+                entity.HasIndex(e => e.ChatId, "unique_chat")
+                    .IsUnique();
 
                 entity.Property(e => e.Id)
                     .HasColumnType("bigint(20)")
@@ -366,7 +425,7 @@ namespace web_panel_api.Models
 
                 entity.UseCollation("utf8mb4_unicode_ci");
 
-                entity.HasIndex(e => e.ServerId, "server_Id");
+                entity.HasIndex(e => e.TariffId, "tariff_id");
 
                 entity.HasIndex(e => e.UserId, "user_id");
 
@@ -378,33 +437,40 @@ namespace web_panel_api.Models
                     .HasColumnType("datetime")
                     .HasColumnName("create_at");
 
-                entity.Property(e => e.DateEnd)
-                    .HasColumnType("datetime")
-                    .HasColumnName("date_end");
+                entity.Property(e => e.DateEnd).HasColumnName("date_end");
 
-                entity.Property(e => e.Key)
+                entity.Property(e => e.KeyId)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("key_id");
+
+                entity.Property(e => e.KeyUrl)
                     .HasMaxLength(255)
-                    .HasColumnName("key");
+                    .HasColumnName("key_url");
 
                 entity.Property(e => e.ServerId)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("server_Id");
+                    .HasColumnType("bigint(20)")
+                    .HasColumnName("server_id");
 
                 entity.Property(e => e.Status)
                     .HasColumnType("tinyint(4)")
                     .HasColumnName("status");
 
+                entity.Property(e => e.TariffId)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("tariff_id");
+
                 entity.Property(e => e.UserId)
                     .HasColumnType("bigint(20)")
                     .HasColumnName("user_id");
 
-                entity.HasOne(d => d.Server)
+                entity.HasOne(d => d.Tariff)
                     .WithMany(p => p.UsersKeys)
-                    .HasForeignKey(d => d.ServerId)
+                    .HasForeignKey(d => d.TariffId)
                     .HasConstraintName("users_keys_ibfk_2");
 
                 entity.HasOne(d => d.User)
-                    .WithOne(p => p.UsersKeys)
+                    .WithMany(p => p.UsersKeys)
+                    .HasForeignKey(d => d.UserId)
                     .HasConstraintName("users_keys_ibfk_1");
             });
 

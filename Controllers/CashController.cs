@@ -29,7 +29,9 @@ namespace web_panel_api.Controllers
             {
                 query = query
                     .Where
-                    (ph => (ph.User.Username.Contains(searchTerm) || ph.User.FirstName.Contains(searchTerm)));
+                    (ph => ph.User != null && 
+                    ((ph.User.Username != null && ph.User.Username.Contains(searchTerm)) 
+                    || (ph.User.FirstName != null && ph.User.FirstName.Contains(searchTerm))));
             }
             var result = await Pager<PayHistory>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
             return _mapper.Map<IEnumerable<GetPayHistoryDto>>(result);
@@ -42,7 +44,8 @@ namespace web_panel_api.Controllers
             if(!string.IsNullOrEmpty(searchTerm)) 
             {
                 query = query
-                    .Where(ph => (ph.User.Username.Contains(searchTerm) || ph.User.FirstName.Contains(searchTerm)));
+                    .Where(ph => ph.User != null && ((ph.User.Username != null && ph.User.Username.Contains(searchTerm)) || 
+                    (ph.User.FirstName != null && ph.User.FirstName.Contains(searchTerm))));
             }
             var result =  await Pager<PayHistory>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
             return _mapper.Map<IEnumerable<GetPayHistoryDto>>(result);

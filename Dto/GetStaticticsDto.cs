@@ -1,7 +1,7 @@
 ﻿using web_panel_api.Models;
 
 namespace web_panel_api.Dto { 
-    public record class DatePoint(DateTime Time, double? Amount);
+    public record class DatePoint(DateTime? Time, double? Amount);
     public  class CurrencyReport
     {
         public string Currency { get; set; } = string.Empty;

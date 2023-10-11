@@ -19,7 +19,7 @@ namespace web_panel_api.Services
                     status = 0;
                     break;
             }
-            result = user => user.ReferralsTreeParents.Count(t => t.Child.Status == status);
+            result = user => user.ReferralsTreeParents.Count(t => t.Children.Status == status);
             return result;
         }
         public static Expression<Func<web_panel_api.Models.god_eyes.User, object>> GetSecondSelector(string sortParam)

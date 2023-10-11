@@ -10,7 +10,7 @@ namespace web_panel_api.Mapper
         {
             CreateMap<ConfirmPayRequest, PayHistory>();
             CreateMap<User, GetReferralDto>();
-            CreateMap<ResolveFreeSubDto, UsersTariff>();
+            //CreateMap<ResolveFreeSubDto, UsersTariff>();
             CreateMap<UpdateUserDto, User>();
             CreateMap<User, GetUserDto>();
             CreateMap<PayHistory, GetPayHistoryDto>();

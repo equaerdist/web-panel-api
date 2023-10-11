@@ -37,14 +37,17 @@ namespace web_panel_api.Services.Statictics
             List<User> temporary;
             if (offset == "interval")
                 temporary = await ctx.Users
-                 .Where(u => u.CreatedAt <= dates.LastTime
+                 .Where(u => u.CreatedAt != null && u.CreatedAt <= dates.LastTime
                           && u.CreatedAt >= dates.FirstTime)
                  .ToListAsync();
             else
                 temporary = await ctx.Users.ToListAsync();
 
             foreach (var user in temporary)
-                user.CreatedAt = DateGrouper.GroupDate(group, user.CreatedAt);
+            {
+                if(user.CreatedAt is null) throw new ArgumentNullException(nameof(user.CreatedAt));
+                user.CreatedAt = DateGrouper.GroupDate(group, (DateTime)user.CreatedAt);
+            }
             result.AmountOfCreatedUsers = temporary
                 .GroupBy(u => u.CreatedAt).Select(g => new DatePoint(g.Key, g.Count())).OrderBy(dt => dt.Time);
 
@@ -58,7 +61,10 @@ namespace web_panel_api.Services.Statictics
 
             foreach (var currencyGroup in temp)
                 foreach (var transaction in currencyGroup)
+                {
+                    if (transaction.PaidAt is null) throw new ArgumentNullException();
                     transaction.PaidAt = DateGrouper.GroupDate(group, (DateTime)transaction.PaidAt);
+                }
 
             var tempDictionary = new Dictionary<string, IEnumerable<DatePoint>>();
             var amountOfPaidDictionary = new Dictionary<string, IEnumerable<DatePoint>>();
@@ -69,6 +75,7 @@ namespace web_panel_api.Services.Statictics
                 var temporaryGroup = currencyGroup.AsEnumerable().GroupBy(ph => ph.PaidAt);
                 foreach (var dateGroup in temporaryGroup)
                 {
+                    if (dateGroup.Key is null) throw new ArgumentNullException();
                     var enumOfDatePoint = dateGroup.AsEnumerable();
                     int datePointAmount = enumOfDatePoint.DistinctBy(ph => ph.UserId).Count();
                     var amount_Of_Paid_For_Currency_In_DatePoint = enumOfDatePoint.Sum(ph => ph.Price);
@@ -77,6 +84,7 @@ namespace web_panel_api.Services.Statictics
                     datePointWhoPaidList.Add(date_Amount_Of_Users_Who_Paid_Point);
                     datePointOfSumPaid.Add(date_point_for_sum_paid);
                 }
+                if (currencyGroup.Key is null) throw new ArgumentNullException();
                 amountOfPaidDictionary[currencyGroup.Key] = datePointOfSumPaid.OrderBy(dt => dt.Time);
                 tempDictionary[currencyGroup.Key] = datePointWhoPaidList.OrderBy(dt => dt.Time);
             }

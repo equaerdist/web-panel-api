@@ -18,9 +18,9 @@ namespace web_panel_api.Services.Referral
                 int notActive = 0;
                 foreach (var tree in user.ReferralsTreeParents)
                 {
-                    if (tree.Child.Status == 1)
+                    if (tree.Children.Status == 1)
                         activeAmount++;
-                    else if (tree.Child.Status == 0)
+                    else if (tree.Children.Status == 0)
                         notActive++;
                 }
                 var temporary = _mapper.Map<GetReferralDto>(user);
@@ -64,15 +64,16 @@ namespace web_panel_api.Services.Referral
                         .Include(u => u.ReferralsTreeChildren)
                         .Where(u => u.ReferralsTreeChildren.Count == 0)
                         .Include(u => u.ReferralsTreeParents)
-                        .ThenInclude(t => t.Child);
+                        .ThenInclude(t => t.Children);
                 else
                     query = ctx.ReferralsTrees
                         .Include(t => t.Parent)
-                        .Where(t => t.Parent.Username.Equals(searchTerm) || t.Parent.FirstName.Equals(searchTerm))
-                        .Include(t => t.Child)
+                        .Where(t => (t.Parent.Username != null && t.Parent.Username.Equals(searchTerm)) 
+                        || (t.Parent.FirstName != null && t.Parent.FirstName.Equals(searchTerm)))
+                        .Include(t => t.Children)
                         .ThenInclude(u => u.ReferralsTreeParents)
-                        .ThenInclude(t => t.Child)
-                       .Select(t => t.Child);
+                        .ThenInclude(t => t.Children)
+                       .Select(t => t.Children);
                 IEnumerable<User> temp;
                 try
                 {
@@ -104,7 +105,9 @@ namespace web_panel_api.Services.Referral
                 else
                     query = ctx.Referrals
                         .Include(t => t.Parent)
-                        .Where(t => t.Parent != null && t.Parent.Username.Equals(searchTerm) || t.Parent.FirstName.Equals(searchTerm))
+                        .Where(t => t.Parent != null && 
+                        ((t.Parent.Username != null && t.Parent.Username.Equals(searchTerm)) 
+                        || (t.Parent.FirstName != null && t.Parent.FirstName.Equals(searchTerm))))
                         .Include(t => t.Child)
                         .ThenInclude(u => u.ReferralParents)
                         .ThenInclude(t => t.Child)

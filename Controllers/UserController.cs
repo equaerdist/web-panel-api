@@ -27,12 +27,12 @@ namespace web_panel_api.Controllers
         public async Task<IEnumerable<GetUserDto>> GetUsers(int page, int pageSize, string? searchTerm, string sortParam, string sortOrder)
         {
             var ctx = new clientContext();
-            IQueryable<User> query = ctx.Users.Include(u => u.UsersKeys).AsQueryable();
-            if(!string.IsNullOrEmpty(searchTerm))
-                query = query.Where(u => 
-                (u.Username.Contains(searchTerm) || u.FirstName.Contains(searchTerm)));
+            IQueryable<User> query = ctx.Users.AsQueryable();
+            if (!string.IsNullOrEmpty(searchTerm))
+                query = query.Where(u =>
+                (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
             IEnumerable<User> result;
-            result =  await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+            result = await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
             return _mapper.Map<IEnumerable<GetUserDto>>(result);
         }
         [HttpGet("demo")]
@@ -42,13 +42,13 @@ namespace web_panel_api.Controllers
             var query = ctx.Users.Where(u => u.IsFree == 0);
             if (!string.IsNullOrEmpty(searchTerm))
                 query = query.Where(u =>
-                (u.Username.Contains(searchTerm) || u.FirstName.Contains(searchTerm)));
-           
-            var result =  await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+                (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
+
+            var result = await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
             return _mapper.Map<IEnumerable<GetUserDto>>(result);
         }
         [HttpGet("referrals")]
-        public async Task<IEnumerable<GetReferralDto>> GetReferralsForUser(string? searchTerm, int page, 
+        public async Task<IEnumerable<GetReferralDto>> GetReferralsForUser(string? searchTerm, int page,
             int pageSize, string sortParam, string sortOrder, string project)
         {
             var result = await _refSrvc.GetReferralsForUser(searchTerm, page, pageSize, sortParam, sortOrder, project);
@@ -87,7 +87,7 @@ namespace web_panel_api.Controllers
         public async Task<IActionResult> ResolveActiveUsers(List<int> userIds)
         {
             var ctx = new clientContext();
-            foreach(var id in userIds)
+            foreach (var id in userIds)
             {
                 var user = await ctx.Users.FirstOrDefaultAsync(u => u.Id == id) ?? throw new ArgumentNullException();
                 user.Status = 1;
@@ -104,7 +104,7 @@ namespace web_panel_api.Controllers
                 var userDatabase = await ctx.Users.FirstOrDefaultAsync(u => u.Id == item.Id);
                 if (userDatabase == null)
                     throw new ArgumentNullException(nameof(User));
-                var userTarif = new UsersTariff() { UserId =  item.Id, Duration = item.Duration };
+                var userTarif = new UsersTariff() { UserId = item.Id, Duration = item.Duration };
                 userTarif.Status = 0;
                 userTarif.CreatedAt = DateTime.Now;
                 userDatabase.IsFree = 1;
