@@ -27,13 +27,23 @@ namespace web_panel_api.Controllers
         public async Task<IEnumerable<GetUserDto>> GetUsers(int page, int pageSize, string? searchTerm, string sortParam, string sortOrder)
         {
             var ctx = new clientContext();
-            IQueryable<User> query = ctx.Users.AsQueryable();
+            IQueryable<User> query = ctx.Users.Include(u => u.UsersKeys).AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
                 query = query.Where(u =>
                 (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
             IEnumerable<User> result;
-            result = await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
-            return _mapper.Map<IEnumerable<GetUserDto>>(result);
+            try
+            {
+                result = await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+            }
+            catch
+            {
+                result = await UserPager.GetPagedUserForVpnService(query, sortParam, sortOrder, page, pageSize);
+            }
+            var temporary =  _mapper.Map<IEnumerable<GetUserDto>>(result);
+            foreach(var user in temporary)
+                user.UsersKeys = user.UsersKeys.Where(uk => uk.Status == 1).ToList();
+            return temporary;
         }
         [HttpGet("demo")]
         public async Task<IEnumerable<GetUserDto>> GetUserForDemoPeriod(int page, int pageSize, string sortParam, string sortOrder, string? searchTerm)

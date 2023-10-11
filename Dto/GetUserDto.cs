@@ -13,6 +13,6 @@ namespace web_panel_api.Dto
         public sbyte? StatusTariff { get; set; }
         public sbyte? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
-        public UsersKey UsersKeys { get; set; } = null!;
+        public List<UsersKey> UsersKeys { get; set; } = null!;
     }
 }
