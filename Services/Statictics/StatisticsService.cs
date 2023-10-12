@@ -9,26 +9,26 @@ namespace web_panel_api.Services.Statictics
     {
         private static void MapDataFromPaidAmountDictionary(GetStaticticsDto result, Dictionary<string, IEnumerable<DatePoint>> tempDictionary)
         {
-            if (tempDictionary.ContainsKey("rub"))
-                result.AmountOfRubPaid = tempDictionary["rub"];
-            if (tempDictionary.ContainsKey("del"))
-                result.AmountOfDelPaid = tempDictionary["del"];
-            if (tempDictionary.ContainsKey("usdt"))
-                result.AmountOfUsdtPaid = tempDictionary["usdt"];
-            if (tempDictionary.ContainsKey("ton"))
-                result.AmountOfTonPaid = tempDictionary["ton"];
+            if (tempDictionary.ContainsKey("RUB"))
+                result.AmountOfRubPaid = tempDictionary["RUB"];
+            if (tempDictionary.ContainsKey("DEL"))
+                result.AmountOfDelPaid = tempDictionary["DEL"];
+            if (tempDictionary.ContainsKey("USDT"))
+                result.AmountOfUsdtPaid = tempDictionary["USDT"];
+            if (tempDictionary.ContainsKey("TON"))
+                result.AmountOfTonPaid = tempDictionary["TON"];
         }
        
         private static void MapDataFromUsersAmountDictionary(GetStaticticsDto result, Dictionary<string, IEnumerable<DatePoint>> tempDictionary)
         {
-            if (tempDictionary.ContainsKey("rub"))
-                result.AmountOfUsersWhoPayRub = tempDictionary["rub"];
-            if (tempDictionary.ContainsKey("del"))
-                result.AmountOfUsersWhoPayDel = tempDictionary["del"];
-            if (tempDictionary.ContainsKey("usdt"))
-                result.AmountOfUsersWhoPayUsdt = tempDictionary["usdt"];
-            if (tempDictionary.ContainsKey("ton"))
-                result.AmountOfUsersWhoPayTon = tempDictionary["ton"];
+            if (tempDictionary.ContainsKey("RUB"))
+                result.AmountOfUsersWhoPayRub = tempDictionary["RUB"];
+            if (tempDictionary.ContainsKey("DEL"))
+                result.AmountOfUsersWhoPayDel = tempDictionary["DEL"];
+            if (tempDictionary.ContainsKey("USDT"))
+                result.AmountOfUsersWhoPayUsdt = tempDictionary["USDT"];
+            if (tempDictionary.ContainsKey("TON"))
+                result.AmountOfUsersWhoPayTon = tempDictionary["TON"];
         }
         public async Task<GetStaticticsDto> GetStats(DateDto dates, string group, string offset)
         {

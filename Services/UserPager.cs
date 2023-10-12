@@ -18,7 +18,6 @@ namespace web_panel_api.Services
             else
                 query = query.OrderBy(keySelectorSecond);
             return await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-
         }
     }
 }

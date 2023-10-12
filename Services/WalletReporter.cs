@@ -18,14 +18,13 @@ namespace web_panel_api.Services
             var ton = "ton";
             var usdtBep = "usdt_bep20";
             var usdtTrx = "usdt_trx20";
-            if (project != "poleteli_vpn")
-            {
-                rub = rub.ToUpper(); del = del.ToUpper();
-                usdt = usdt.ToUpper();
-                ton = ton.ToUpper();
-                usdtBep = usdtBep.ToUpper();
-                usdtTrx = usdtTrx.ToUpper();
-            }
+           
+            rub = rub.ToUpper(); del = del.ToUpper();
+            usdt = usdt.ToUpper();
+            ton = ton.ToUpper();
+            usdtBep = usdtBep.ToUpper();
+            usdtTrx = usdtTrx.ToUpper();
+
             temp = all["input"]?.FirstOrDefault()?[rub]?.FirstOrDefault();
             if (temp != null)
                 common.RUB = temp;

@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using web_panel_api.Services.Referral;
 using web_panel_api.Services.Statictics;
+using web_panel_api.Services.JsonConverters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +21,10 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
     options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-    options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+    options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Local;
     options.SerializerSettings.DateParseHandling = DateParseHandling.DateTime;
     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+    options.SerializerSettings.Converters.Add(new DateOnlyJsonConverter());
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt => opt.TokenValidationParameters = new TokenValidationParameters

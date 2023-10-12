@@ -64,16 +64,16 @@ namespace web_panel_api.Controllers
                 {
                     switch (ph.Currency)
                     {
-                        case "rub":
+                        case "RUB":
                             allRub += ph.Price ?? 0;
                             break;
-                        case "usdt":
+                        case "USDT":
                             allUsdt += ph.Price ?? 0;
                             break;
-                        case "del":
+                        case "DEL":
                             allDel += ph.Price ?? 0;
                             break;
-                        case "ton":
+                        case "TON":
                             allTon += ph.Price ?? 0;
                             break;
                     }
@@ -81,16 +81,16 @@ namespace web_panel_api.Controllers
                     {
                         switch (ph.Currency)
                         {
-                            case "rub":
+                            case "RUB":
                                 givenRub += ph.Price ?? 0;
                                 break;
-                            case "usdt":
+                            case "USDT":
                                 givenUsdt += ph.Price ?? 0;
                                 break;
-                            case "del":
+                            case "DEL":
                                 givenDel += ph.Price ?? 0;
                                 break;
-                            case "ton":
+                            case "TON":
                                 givenTon += ph.Price ?? 0;
                                 break;
                         }
@@ -154,7 +154,7 @@ namespace web_panel_api.Controllers
                     result.All++;
                     if (user.IsReplay == 1)
                         result.RepeatedPay++;
-                    if (user.Status == 1)
+                    if (user.StatusTariff == 1)
                         result.Active++;
                     else
                         result.NotActive++;
