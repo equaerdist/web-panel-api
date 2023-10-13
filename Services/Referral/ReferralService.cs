@@ -24,6 +24,7 @@ namespace web_panel_api.Services.Referral
                         notActive++;
                 }
                 var temporary = _mapper.Map<GetReferralDto>(user);
+                temporary.UsersKeys = temporary.UsersKeys.Where(uk => uk.Status == 1).ToList();
                 temporary.Active = activeAmount;
                 temporary.NotActive = notActive;
                 result.Add(temporary);
@@ -64,7 +65,8 @@ namespace web_panel_api.Services.Referral
                         .Include(u => u.ReferralsTreeChildren)
                         .Where(u => u.ReferralsTreeChildren.Count == 0)
                         .Include(u => u.ReferralsTreeParents)
-                        .ThenInclude(t => t.Children);
+                        .ThenInclude(t => t.Children)
+                        .Include(u => u.UsersKeys);
                 else
                     query = ctx.ReferralsTrees
                         .Include(t => t.Parent)
@@ -73,7 +75,8 @@ namespace web_panel_api.Services.Referral
                         .Include(t => t.Children)
                         .ThenInclude(u => u.ReferralsTreeParents)
                         .ThenInclude(t => t.Children)
-                       .Select(t => t.Children);
+                       .Select(t => t.Children)
+                       .Include(u => u.UsersKeys);
                 IEnumerable<User> temp;
                 try
                 {

@@ -9,17 +9,25 @@ namespace web_panel_api.Services
         public static Expression<Func<User, object>> GetSelector(string sortParam)
         {
             Expression<Func<User, object>> result;
-            int status;
+            int status = 1;
+            int statusFlag = 1;
             switch (sortParam)
             {
                 case "active":
                     status = 1;
                     break;
+                case "dateEnd":
+                    statusFlag = 0;
+                    break;
                 default:
                     status = 0;
                     break;
             }
-            result = user => user.ReferralsTreeParents.Count(t => t.Children.Status == status);
+            if (statusFlag == 1)
+                result = user => user.ReferralsTreeParents.Count(t => t.Children.Status == status);
+            else
+                result = user => user.UsersKeys
+                .FirstOrDefault(uk => uk.Status == 1) == null ? DateTime.MinValue : user.UsersKeys.First(uk => uk.Status == 1).DateEnd;
             return result;
         }
         public static Expression<Func<web_panel_api.Models.god_eyes.User, object>> GetSecondSelector(string sortParam)

@@ -22,9 +22,9 @@ namespace web_panel_api.Controllers
         public StatisticsController(IMapper mapper, IStatisticsService srvc) { _mapper = mapper; _srvc = srvc; }
 
         [HttpPost]
-        public async Task<GetStaticticsDto> GetStats(DateDto dates, string group, string offset)
+        public async Task<GetStaticticsDto> GetStats(DateDto dates, string group, string offset, string project)
         {
-           return await _srvc.GetStats(dates, group, offset);
+           return await _srvc.GetStats(dates, group, offset, project);
         }
 
     }

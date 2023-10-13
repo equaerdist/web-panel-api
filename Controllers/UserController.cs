@@ -24,26 +24,41 @@ namespace web_panel_api.Controllers
 
         public UserController(IMapper mapper, IPresenter prst, IReferralService refServc) { _mapper = mapper; _prst = prst; _refSrvc = refServc; }
         [HttpGet()]
-        public async Task<IEnumerable<GetUserDto>> GetUsers(int page, int pageSize, string? searchTerm, string sortParam, string sortOrder)
+        public async Task<IEnumerable<GetUserDto>> GetUsers(int page, int pageSize, string? searchTerm, string sortParam, string sortOrder, string project)
         {
-            var ctx = new clientContext();
-            IQueryable<User> query = ctx.Users.Include(u => u.UsersKeys).AsQueryable();
-            if (!string.IsNullOrEmpty(searchTerm))
-                query = query.Where(u =>
-                (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
-            IEnumerable<User> result;
-            try
+            if (project.Equals("poleteli_vpn"))
             {
-                result = await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+                var ctx = new clientContext();
+                IQueryable<User> query = ctx.Users.Include(u => u.UsersKeys).AsQueryable();
+                if (!string.IsNullOrEmpty(searchTerm))
+                    query = query.Where(u =>
+                    (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
+                IEnumerable<User> result;
+                try
+                {
+                    result = await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+                }
+                catch
+                {
+                    result = await UserPager.GetPagedUserForVpnService(query, sortParam, sortOrder, page, pageSize);
+                }
+                var temporary = _mapper.Map<IEnumerable<GetUserDto>>(result);
+                foreach (var user in temporary)
+                    user.UsersKeys = user.UsersKeys.Where(uk => uk.Status == 1).ToList();
+                return temporary;
             }
-            catch
+            else
             {
-                result = await UserPager.GetPagedUserForVpnService(query, sortParam, sortOrder, page, pageSize);
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                IQueryable<web_panel_api.Models.god_eyes.User> query = ctx.Users.AsQueryable();
+                if (!string.IsNullOrEmpty(searchTerm))
+                    query = query.Where(u =>
+                    (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
+                IEnumerable<web_panel_api.Models.god_eyes.User> result;
+                    result = await Pager<web_panel_api.Models.god_eyes.User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+                var temporary = _mapper.Map<IEnumerable<GetUserDto>>(result);
+                return temporary;
             }
-            var temporary =  _mapper.Map<IEnumerable<GetUserDto>>(result);
-            foreach(var user in temporary)
-                user.UsersKeys = user.UsersKeys.Where(uk => uk.Status == 1).ToList();
-            return temporary;
         }
         [HttpGet("demo")]
         public async Task<IEnumerable<GetUserDto>> GetUserForDemoPeriod(int page, int pageSize, string sortParam, string sortOrder, string? searchTerm)
@@ -94,13 +109,27 @@ namespace web_panel_api.Controllers
             }
         }
         [HttpPut]
-        public async Task<IActionResult> ResolveActiveUsers(List<int> userIds)
+        public async Task<IActionResult> ResolveActiveUsers(List<int> userIds, string project)
         {
-            var ctx = new clientContext();
-            foreach (var id in userIds)
+            if (project.Equals("poleteli_vpn"))
             {
-                var user = await ctx.Users.FirstOrDefaultAsync(u => u.Id == id) ?? throw new ArgumentNullException();
-                user.Status = 1;
+                var ctx = new clientContext();
+                foreach (var id in userIds)
+                {
+                    var user = await ctx.Users.FirstOrDefaultAsync(u => u.Id == id) ?? throw new ArgumentNullException();
+                    user.Status = 1;
+                  
+                }
+                ctx.SaveChanges();
+            }
+            else
+            {
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                foreach (var id in userIds)
+                {
+                    var user = await ctx.Users.FirstOrDefaultAsync(u => u.Id == id) ?? throw new ArgumentNullException();
+                    user.Status = true;
+                }
                 ctx.SaveChanges();
             }
             return NoContent();

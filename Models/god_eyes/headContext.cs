@@ -19,6 +19,7 @@ namespace web_panel_api.Models.god_eyes
         public virtual DbSet<Client> Clients { get; set; } = null!;
         public virtual DbSet<Pay> Pays { get; set; } = null!;
         public virtual DbSet<Referral> Referrals { get; set; } = null!;
+        public virtual DbSet<SendMessage> SendMessages { get; set; } = null!;
         public virtual DbSet<Setting> Settings { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<Wallet> Wallets { get; set; } = null!;
@@ -27,7 +28,7 @@ namespace web_panel_api.Models.god_eyes
         {
             if (!optionsBuilder.IsConfigured)
             {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseMySql("host=localhost;port=3306;database=head;uid=root;convertzerodatetime=True", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.27-mariadb"));
             }
         }
@@ -168,6 +169,31 @@ namespace web_panel_api.Models.god_eyes
                     .WithMany(p => p.ReferralParents)
                     .HasForeignKey(d => d.ParentId)
                     .HasConstraintName("Referrals_ibfk_2");
+            });
+
+            modelBuilder.Entity<SendMessage>(entity =>
+            {
+                entity.ToTable("send_message");
+
+                entity.Property(e => e.Id)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("id");
+
+                entity.Property(e => e.DateCreate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("date_create");
+
+                entity.Property(e => e.Send)
+                    .HasColumnType("tinyint(4)")
+                    .HasColumnName("send");
+
+                entity.Property(e => e.Text)
+                    .HasColumnType("text")
+                    .HasColumnName("text");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(15)
+                    .HasColumnName("type");
             });
 
             modelBuilder.Entity<Setting>(entity =>

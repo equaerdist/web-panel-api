@@ -1,10 +1,12 @@
 ﻿using web_panel_api.Models;
+using web_panel_api.Models.god_eyes;
 
 namespace web_panel_api.Dto
 {
     public class GetUserDto
     {
         public long Id { get; set; }
+        public long? ChatId { get; set; }
         public string Username { get; set; } = null!;
         public string FirstName { get; set; } = null!;
         public string? LastName { get; set; }

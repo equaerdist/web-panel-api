@@ -53,5 +53,33 @@ namespace web_panel_api.Controllers
                 return NoContent();
             }
         }
+        [HttpPost("message")]
+        public async Task<IActionResult> AddMessageToBroadcast(SendMessageDto message, string project)
+        {
+            
+            if(project.Equals("poleteli_vpn"))
+            {
+                var newMessage = new SendMessage();
+                newMessage.Text = message.Text;
+                newMessage.Type = message.Type ? "active" : "notactive";
+                newMessage.DateCreate = DateTime.Now;
+                newMessage.Send = 0;
+                var ctx = new clientContext();
+                await ctx.SendMessages.AddAsync(newMessage);
+                await ctx.SaveChangesAsync();
+            }
+            else
+            {
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                var newMessage = new web_panel_api.Models.god_eyes.SendMessage();
+                newMessage.Text = message.Text;
+                newMessage.Type = message.Type ? "active" : "notactive";
+                newMessage.DateCreate = DateTime.Now;
+                newMessage.Send = 0;
+                await ctx.SendMessages.AddAsync(newMessage);
+                await ctx.SaveChangesAsync();
+            }
+            return NoContent();
+        }
     }
 }
