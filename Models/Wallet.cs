@@ -8,6 +8,8 @@ namespace web_panel_api.Models
         public long UserId { get; set; }
         public string? Type { get; set; }
         public float? Balance { get; set; }
+        public float? BalanceFact { get; set; }
+        public string? Currency { get; set; }
         public string? Addresse { get; set; }
         public DateTime? CreatedAt { get; set; }
 

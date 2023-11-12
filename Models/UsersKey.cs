@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using web_panel_api.Services.JsonConverters;
 
 namespace web_panel_api.Models
 {
@@ -14,7 +12,6 @@ namespace web_panel_api.Models
         public string? KeyUrl { get; set; }
         public int? TariffId { get; set; }
         public sbyte? Status { get; set; }
-     
         public DateOnly? DateEnd { get; set; }
         public DateTime? CreateAt { get; set; }
 

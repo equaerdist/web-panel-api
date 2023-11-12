@@ -11,19 +11,13 @@ namespace web_panel_api.Services
             var result = new WalletReport();
             var common = new WalletWrapper();
             float? temp;
-            var rub = "rub";
+            var rub = "RUB";
            
-            var del = "del";
-            var usdt = "usdt";
-            var ton = "ton";
-            var usdtBep = "usdt_bep20";
-            var usdtTrx = "usdt_trx20";
-           
-            rub = rub.ToUpper(); del = del.ToUpper();
-            usdt = usdt.ToUpper();
-            ton = ton.ToUpper();
-            usdtBep = usdtBep.ToUpper();
-            usdtTrx = usdtTrx.ToUpper();
+            var del = "DEL";
+          
+            var trx = "TRX";
+            var bnb = "BNB";
+            var ton = "TON";
 
             temp = all["input"]?.FirstOrDefault()?[rub]?.FirstOrDefault();
             if (temp != null)
@@ -31,12 +25,15 @@ namespace web_panel_api.Services
             temp = all["input"]?.FirstOrDefault()?[del]?.FirstOrDefault();
             if (temp != null)
                 common.DEL = temp;
-            temp = all["input"]?.FirstOrDefault()?[usdt]?.FirstOrDefault();
+            temp = all["input"]?.FirstOrDefault()?[trx]?.FirstOrDefault();
             if (temp != null)
-                common.USDT = temp;
+                common.TRX = temp;
             temp = all["input"]?.FirstOrDefault()?[ton]?.FirstOrDefault();
             if (temp != null)
                 common.TON = temp;
+            temp = all["input"]?.FirstOrDefault()?[bnb]?.FirstOrDefault();
+            if (temp != null)
+                common.BNB = temp;
 
             temp = all["output"]?.FirstOrDefault()?[rub]?.FirstOrDefault();
             if (temp != null)
@@ -47,24 +44,29 @@ namespace web_panel_api.Services
             temp = all["output"]?.FirstOrDefault()?[ton]?.FirstOrDefault();
             if (temp != null)
                 common.TON -= temp;
-            temp = all["output"]?.FirstOrDefault()?[usdt]?.FirstOrDefault();
+            temp = all["output"]?.FirstOrDefault()?[bnb]?.FirstOrDefault();
             if (temp != null)
-                common.USDT -= temp;
+                common.BNB -= temp;
+            temp = all["output"]?.FirstOrDefault()?[trx]?.FirstOrDefault();
+            if (temp != null)
+                common.TRX -= temp;
             result.All = common;
            
             var frozenBalance = new WalletWrapper
             {
                 RUB = frozen[rub]?.FirstOrDefault() ?? 0,
-                USDT = (frozen[usdtBep]?.FirstOrDefault() ?? 0) + (frozen[usdtTrx]?.FirstOrDefault() ?? 0),
+                TRX = (frozen[trx]?.FirstOrDefault() ?? 0),
                 TON = frozen[ton]?.FirstOrDefault() ?? 0,
-                DEL = frozen[del]?.FirstOrDefault() ?? 0
+                DEL = frozen[del]?.FirstOrDefault() ?? 0,
+                BNB = frozen[bnb]?.FirstOrDefault() ?? 0,
             };
             result.Frozen = frozenBalance;
 
             result.Available = new WalletWrapper
             {
                 RUB = common.RUB - frozenBalance.RUB,
-                USDT = common.USDT - frozenBalance.USDT,
+                TRX = common.TRX - frozenBalance.TRX,
+                BNB = common.BNB - frozenBalance.BNB,
                 DEL = common.DEL - frozenBalance.DEL,
                 TON = common.TON - frozenBalance.TON
             };

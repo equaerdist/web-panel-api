@@ -10,13 +10,15 @@ namespace web_panel_api.Dto {
     public class GetStaticticsDto
     {
         public IEnumerable<DatePoint> AmountOfCreatedUsers { get; set; } = null!;
-        public IEnumerable<DatePoint> AmountOfUsersWhoPayUsdt { get; set; } = new List<DatePoint>();
         public IEnumerable<DatePoint> AmountOfUsersWhoPayDel { get; set; } = new List<DatePoint>();
         public IEnumerable<DatePoint> AmountOfUsersWhoPayTon { get; set; } = new List<DatePoint>();
+        public IEnumerable<DatePoint> AmountOfUsersWhoPayTrx { get; set; } = new List<DatePoint>();
+        public IEnumerable<DatePoint> AmountOfUsersWhoPayBnb { get; set; } = new List<DatePoint>();
         public IEnumerable<DatePoint> AmountOfUsersWhoPayRub { get; set; } = new List<DatePoint>();
-        public IEnumerable<DatePoint> AmountOfUsdtPaid { get; set; } = new List<DatePoint>();
         public IEnumerable<DatePoint> AmountOfRubPaid { get; set; } = new List<DatePoint>();
         public IEnumerable<DatePoint> AmountOfTonPaid { get; set; } = new List<DatePoint>();
+        public IEnumerable<DatePoint> AmountOfTrxPaid { get; set; } = new List<DatePoint>();
+        public IEnumerable<DatePoint> AmountOfBnbPaid { get; set; } = new List<DatePoint>();
         public IEnumerable<DatePoint> AmountOfDelPaid { get; set; } = new List<DatePoint>();
     }
 }

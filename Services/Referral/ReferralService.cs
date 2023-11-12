@@ -18,9 +18,9 @@ namespace web_panel_api.Services.Referral
                 int notActive = 0;
                 foreach (var tree in user.ReferralsTreeParents)
                 {
-                    if (tree.Children.StatusTariff == 1)
+                    if (tree.Children.Status == 1)
                         activeAmount++;
-                    else if (tree.Children.StatusTariff == 0)
+                    else if (tree.Children.Status == 0)
                         notActive++;
                 }
                 var temporary = _mapper.Map<GetReferralDto>(user);
@@ -70,13 +70,14 @@ namespace web_panel_api.Services.Referral
                 else
                     query = ctx.ReferralsTrees
                         .Include(t => t.Parent)
-                        .Where(t => (t.Parent.Username != null && t.Parent.Username.Equals(searchTerm)) 
+                        .Where(t => (t.Parent.Username != null && t.Parent.Username.Equals(searchTerm))
                         || (t.Parent.FirstName != null && t.Parent.FirstName.Equals(searchTerm)))
                         .Include(t => t.Children)
                         .ThenInclude(u => u.ReferralsTreeParents)
                         .ThenInclude(t => t.Children)
-                       .Select(t => t.Children)
-                       .Include(u => u.UsersKeys);
+                        .Include(t => t.Children)
+                        .ThenInclude(ch => ch.UsersKeys)
+                       .Select(t => t.Children);
                 IEnumerable<User> temp;
                 try
                 {

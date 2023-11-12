@@ -18,6 +18,7 @@ namespace web_panel_api.Models
 
         public virtual DbSet<PayHistory> PayHistories { get; set; } = null!;
         public virtual DbSet<Promocode> Promocodes { get; set; } = null!;
+        public virtual DbSet<PromocodesPrice> PromocodesPrices { get; set; } = null!;
         public virtual DbSet<ReferralsTree> ReferralsTrees { get; set; } = null!;
         public virtual DbSet<SendMessage> SendMessages { get; set; } = null!;
         public virtual DbSet<Server> Servers { get; set; } = null!;
@@ -33,7 +34,7 @@ namespace web_panel_api.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseMySql("host=localhost;port=3306;database=client;uid=root;convertzerodatetime=True", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.27-mariadb"));
             }
         }
@@ -124,14 +125,6 @@ namespace web_panel_api.Models
                     .HasColumnType("datetime")
                     .HasColumnName("create_at");
 
-                entity.Property(e => e.PriceDel).HasColumnName("price_del");
-
-                entity.Property(e => e.PriceRub).HasColumnName("price_rub");
-
-                entity.Property(e => e.PriceTon).HasColumnName("price_ton");
-
-                entity.Property(e => e.PriceUsdt).HasColumnName("price_usdt");
-
                 entity.Property(e => e.Status)
                     .HasColumnType("tinyint(4)")
                     .HasColumnName("status");
@@ -157,6 +150,34 @@ namespace web_panel_api.Models
                     .WithMany(p => p.Promocodes)
                     .HasForeignKey(d => d.UserId)
                     .HasConstraintName("promocodes_ibfk_1");
+            });
+
+            modelBuilder.Entity<PromocodesPrice>(entity =>
+            {
+                entity.ToTable("promocodes_price");
+
+                entity.UseCollation("utf8mb4_unicode_ci");
+
+                entity.HasIndex(e => e.PromocodeId, "fk_promocode_idx");
+
+                entity.Property(e => e.Id)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("id");
+
+                entity.Property(e => e.Currency)
+                    .HasMaxLength(45)
+                    .HasColumnName("currency");
+
+                entity.Property(e => e.Price).HasColumnName("price");
+
+                entity.Property(e => e.PromocodeId)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("promocode_id");
+
+                entity.HasOne(d => d.Promocode)
+                    .WithMany(p => p.PromocodesPrices)
+                    .HasForeignKey(d => d.PromocodeId)
+                    .HasConstraintName("fk_promocode");
             });
 
             modelBuilder.Entity<ReferralsTree>(entity =>
@@ -254,69 +275,24 @@ namespace web_panel_api.Models
 
             modelBuilder.Entity<Setting>(entity =>
             {
+                entity.HasKey(e => e.Name)
+                    .HasName("PRIMARY");
+
                 entity.ToTable("settings");
 
                 entity.UseCollation("utf8mb4_unicode_ci");
 
-                entity.Property(e => e.Id)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("id");
+                entity.Property(e => e.Name)
+                    .HasMaxLength(250)
+                    .HasColumnName("name");
 
-                entity.Property(e => e.CommissionInputDel)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("commission_input_del");
+                entity.Property(e => e.NameUser)
+                    .HasMaxLength(250)
+                    .HasColumnName("name_user");
 
-                entity.Property(e => e.CommissionInputTon)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("commission_input_ton");
-
-                entity.Property(e => e.CommissionInputUsdt)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("commission_input_usdt");
-
-                entity.Property(e => e.CommissionOutputDel)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("commission_output_del");
-
-                entity.Property(e => e.CommissionOutputRub)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("commission_output_rub");
-
-                entity.Property(e => e.CommissionOutputTon)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("commission_output_ton");
-
-                entity.Property(e => e.CommissionOutputUsdt)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("commission_output_usdt");
-
-                entity.Property(e => e.MinOutputDel)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("min_output_del");
-
-                entity.Property(e => e.MinOutputRub)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("min_output_rub");
-
-                entity.Property(e => e.MinOutputTon)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("min_output_ton");
-
-                entity.Property(e => e.MinOutputUsdt)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("min_output_usdt");
-
-                entity.Property(e => e.ReferralRewardLvl1)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("referral_reward_lvl_1");
-
-                entity.Property(e => e.ReferralRewardLvl2)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("referral_reward_lvl_2");
-
-                entity.Property(e => e.ReferralRewardLvl3)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("referral_reward_lvl_3");
+                entity.Property(e => e.Value)
+                    .HasColumnType("json")
+                    .HasColumnName("value");
             });
 
             modelBuilder.Entity<Tariff>(entity =>
@@ -534,9 +510,15 @@ namespace web_panel_api.Models
 
                 entity.Property(e => e.Balance).HasColumnName("balance");
 
+                entity.Property(e => e.BalanceFact).HasColumnName("balance_fact");
+
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
                     .HasColumnName("created_at");
+
+                entity.Property(e => e.Currency)
+                    .HasMaxLength(45)
+                    .HasColumnName("currency");
 
                 entity.Property(e => e.Type)
                     .HasMaxLength(15)

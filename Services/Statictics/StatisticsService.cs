@@ -13,8 +13,10 @@ namespace web_panel_api.Services.Statictics
                 result.AmountOfRubPaid = tempDictionary["RUB"];
             if (tempDictionary.ContainsKey("DEL"))
                 result.AmountOfDelPaid = tempDictionary["DEL"];
-            if (tempDictionary.ContainsKey("USDT"))
-                result.AmountOfUsdtPaid = tempDictionary["USDT"];
+            if (tempDictionary.ContainsKey("BNB"))
+                result.AmountOfBnbPaid = tempDictionary["BNB"];
+            if (tempDictionary.ContainsKey("TRX"))
+                result.AmountOfTrxPaid = tempDictionary["TRX"];
             if (tempDictionary.ContainsKey("TON"))
                 result.AmountOfTonPaid = tempDictionary["TON"];
         }
@@ -25,8 +27,10 @@ namespace web_panel_api.Services.Statictics
                 result.AmountOfUsersWhoPayRub = tempDictionary["RUB"];
             if (tempDictionary.ContainsKey("DEL"))
                 result.AmountOfUsersWhoPayDel = tempDictionary["DEL"];
-            if (tempDictionary.ContainsKey("USDT"))
-                result.AmountOfUsersWhoPayUsdt = tempDictionary["USDT"];
+            if (tempDictionary.ContainsKey("BNB"))
+                result.AmountOfUsersWhoPayBnb = tempDictionary["BNB"];
+            if (tempDictionary.ContainsKey("TRX"))
+                result.AmountOfUsersWhoPayTrx = tempDictionary["TRX"];
             if (tempDictionary.ContainsKey("TON"))
                 result.AmountOfUsersWhoPayTon = tempDictionary["TON"];
         }

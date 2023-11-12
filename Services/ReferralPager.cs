@@ -26,8 +26,11 @@ namespace web_panel_api.Services
             if (statusFlag == 1)
                 result = user => user.ReferralsTreeParents.Count(t => t.Children.Status == status);
             else
-                result = user => user.UsersKeys
-                .FirstOrDefault(uk => uk.Status == 1) == null ? DateTime.MinValue : user.UsersKeys.First(uk => uk.Status == 1).DateEnd;
+            {
+                result = user => user.UsersKeys.FirstOrDefault(uk => uk.Status == 1) != null ? user.UsersKeys.First(uk => uk.Status == 1).DateEnd : DateOnly.MinValue;
+            }
+
+
             return result;
         }
         public static Expression<Func<web_panel_api.Models.god_eyes.User, object>> GetSecondSelector(string sortParam)

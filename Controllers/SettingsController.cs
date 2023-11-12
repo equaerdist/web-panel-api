@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using web_panel_api.Dto;
 using web_panel_api.Models;
+using web_panel_api.Services;
 
 namespace web_panel_api.Controllers
 {
@@ -18,19 +19,24 @@ namespace web_panel_api.Controllers
 
         public SettingsController(IMapper mpr) { _mpr = mpr; }
         [HttpGet]
-        public async Task<IActionResult> GetSettings(string project)
+        public async Task<IActionResult> GetSettings(string project, string? searchTerm, string sortParam, string sortOrder, int page, int pageSize)
         {
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                var settings = await ctx.Settings.FirstOrDefaultAsync();
-                return Ok(settings);
+                var query = ctx.Settings.AsQueryable();
+                if(!string.IsNullOrEmpty(searchTerm))
+                {
+                    query = query.Where(s => s.NameUser != null && s.NameUser.Contains(searchTerm));
+                }
+                return Ok(await Pager<Setting>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize));
             }
             else
             {
-                var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var settings = await ctx.Settings.FirstOrDefaultAsync();
-                return Ok(settings);
+                //var ctx = new web_panel_api.Models.god_eyes.headContext();
+                //var settings = await ctx.Settings.FirstOrDefaultAsync();
+                //return Ok(settings);
+                throw new ArgumentException();
             }
         }
         [HttpPut]
@@ -39,18 +45,19 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Id == newSet.Id) ?? throw new ArgumentException("Сущности не существует");
+                var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Name == newSet.Name) ?? throw new ArgumentException("Сущности не существует");
                 _mpr.Map(newSet, setDb);
                 await ctx.SaveChangesAsync();
                 return NoContent();
             }
             else
             {
-                var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Id == newSet.Id) ?? throw new ArgumentException("Сущности не существует");
-                _mpr.Map(newSet, setDb);
-                await ctx.SaveChangesAsync();
-                return NoContent();
+                //var ctx = new web_panel_api.Models.god_eyes.headContext();
+                //var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Id == newSet.Id) ?? throw new ArgumentException("Сущности не существует");
+                //_mpr.Map(newSet, setDb);
+                //await ctx.SaveChangesAsync();
+                //return NoContent();
+                throw new ArgumentException();
             }
         }
         [HttpPost("message")]

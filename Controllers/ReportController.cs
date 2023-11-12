@@ -55,8 +55,14 @@ namespace web_panel_api.Controllers
         public async Task<ReferralReport> GetReferralAward(string project)
         {
             var result = new ReferralReport();
-            float allRub = 0, allUsdt = 0, allTon = 0, allDel = 0;
-            float givenRub = 0, givenUsdt = 0, givenTon = 0, givenDel = 0;
+            float allRub = 0, allTrx = 0, allTon = 0, allDel = 0, allBnb = 0;
+            float givenRub = 0, givenBnb = 0, givenTon = 0, givenDel = 0, givenTrx = 0;
+            //BNB, TRX, TON,DEL,RUB
+            const string bnb = "BNB";
+            const string trx = "TRX";
+            const string ton = "TON";
+            const string del = "DEL";
+            const string rub = "RUB";
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
@@ -64,34 +70,40 @@ namespace web_panel_api.Controllers
                 {
                     switch (ph.Currency)
                     {
-                        case "RUB":
+                        case rub:
                             allRub += ph.Price ?? 0;
                             break;
-                        case "USDT":
-                            allUsdt += ph.Price ?? 0;
+                        case bnb:
+                            allBnb += ph.Price ?? 0;
                             break;
-                        case "DEL":
-                            allDel += ph.Price ?? 0;
+                        case trx:
+                            allTrx += ph.Price ?? 0;
                             break;
-                        case "TON":
+                        case ton:
                             allTon += ph.Price ?? 0;
+                            break;
+                        case del:
+                            allDel += ph.Price ?? 0;
                             break;
                     }
                     if (ph.PaymentMethod == "referrals")
                     {
                         switch (ph.Currency)
                         {
-                            case "RUB":
+                            case rub:
                                 givenRub += ph.Price ?? 0;
                                 break;
-                            case "USDT":
-                                givenUsdt += ph.Price ?? 0;
+                            case bnb:
+                                givenBnb += ph.Price ?? 0;
                                 break;
-                            case "DEL":
+                            case del:
                                 givenDel += ph.Price ?? 0;
                                 break;
-                            case "TON":
+                            case ton:
                                 givenTon += ph.Price ?? 0;
+                                break;
+                            case trx:
+                                givenTrx += ph.Price ?? 0;
                                 break;
                         }
                     }
@@ -104,42 +116,55 @@ namespace web_panel_api.Controllers
                 {
                     switch (ph.Currency)
                     {
-                        case "RUB":
+                        case rub:
                             allRub += ph.Price ?? 0;
                             break;
-                        case "USDT":
-                            allUsdt += ph.Price ?? 0;
+                        case trx:
+                            allTrx += ph.Price ?? 0;
                             break;
-                        case "DEL":
+                        case del:
                             allDel += ph.Price ?? 0;
                             break;
-                        case "TON":
+                        case ton:
                             allTon += ph.Price ?? 0;
+                            break;
+                        case bnb:
+                            allBnb += ph.Price ?? 0;
                             break;
                     }
                     if (ph.Method == "REFERRALS")
                     {
                         switch (ph.Currency)
                         {
-                            case "RUB":
+                            case rub:
                                 givenRub += ph.Price ?? 0;
                                 break;
-                            case "USDT":
-                                givenUsdt += ph.Price ?? 0;
+                            case trx:
+                                givenTrx += ph.Price ?? 0;
                                 break;
-                            case "DEL":
+                            case del:
                                 givenDel += ph.Price ?? 0;
                                 break;
-                            case "TON":
+                            case ton:
                                 givenTon += ph.Price ?? 0;
+                                break;
+                            case bnb:
+                                givenBnb += ph.Price ?? 0;
                                 break;
                         }
                     }
                 }
             }
-            result.All = new WalletWrapper { DEL = allDel, RUB = allRub, USDT = allUsdt, TON = allTon };
-            result.Given = new WalletWrapper { DEL = givenDel, RUB = givenRub, USDT = givenUsdt, TON = givenTon };
-            result.Saved = new WalletWrapper {  DEL = allDel - givenDel, RUB = allRub - givenRub, TON = allTon - givenTon, USDT = allUsdt - givenUsdt };
+            result.All = new WalletWrapper { DEL = allDel, RUB = allRub, TRX = allTrx, TON = allTon, BNB = allBnb };
+            result.Given = new WalletWrapper { DEL = givenDel, RUB = givenRub, TRX = givenTrx, TON = givenTon, BNB = givenBnb };
+            result.Saved = new WalletWrapper 
+            {  
+                DEL = allDel - givenDel, 
+                RUB = allRub - givenRub, 
+                TON = allTon - givenTon, 
+                TRX = allTrx - givenTrx, 
+                BNB = allBnb - givenBnb 
+            };
             return result;
         }
         [HttpGet("user")]
