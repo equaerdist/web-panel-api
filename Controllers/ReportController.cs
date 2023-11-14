@@ -25,12 +25,13 @@ namespace web_panel_api.Controllers
             {
                 var context = new clientContext();
                 var all = context.PayHistories
-                    .Where(e => e.PaymentMethod != "referrals" && e.PaidAt != null);
+                    .Where(e => e.PaymentMethod != "referrals" && e.PaidAt != null && e.StatusPay == 1);
                 if (offset == "interval")
                     all = all.Where(e => e.PaidAt >= info.FirstTime && e.PaidAt <= info.LastTime);
                 var temp = all.AsEnumerable()
                                 .GroupBy(e => e.PaymentType)
-                                .ToLookup(g => g.Key, g => g.GroupBy(ph => ph.Currency).ToLookup(phc => phc.Key, phc => phc.Sum(el => el.Price)));
+                                .ToLookup(g => g.Key, g => g.GroupBy(ph => ph.Currency)
+                                .ToLookup(phc => phc.Key, phc => phc.Sum(el => el.Price)));
                 var frozen = context.Wallets.AsEnumerable().GroupBy(w => w.Type)
                    .ToLookup(e => e.Key, e => e.Sum(we => we.Balance));
                 var result = Task.Run(() => _rpt.GetReport(temp, frozen, project));
@@ -39,7 +40,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var all = ctx.Pays.Where(e => e.Method != "REFERRALS" && e.PaidAt != null);
+                var all = ctx.Pays.Where(e => e.Method != "REFERRALS" && e.PaidAt != null && e.Status == 1);
                 if (offset == "interval")
                     all = all.Where(e => e.PaidAt >= info.FirstTime && e.PaidAt <= info.LastTime);
                 var temp = all.AsEnumerable()
@@ -66,7 +67,7 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                foreach (var ph in await ctx.PayHistories.ToListAsync())
+                foreach (var ph in await ctx.PayHistories.Where(ph => ph.StatusPay == 1).ToListAsync())
                 {
                     switch (ph.Currency)
                     {
@@ -112,7 +113,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                foreach (var ph in await ctx.Pays.ToListAsync())
+                foreach (var ph in await ctx.Pays.Where(ph => ph.Status == 1).ToListAsync())
                 {
                     switch (ph.Currency)
                     {

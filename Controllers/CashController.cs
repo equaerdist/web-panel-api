@@ -26,7 +26,9 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                var query = ctx.PayHistories.Include(ph => ph.User).Where(ph => ph.PaymentType == "output" && ph.StatusPay == 1 && ph.PaymentMethod == "balance");
+                var query = ctx.PayHistories.Include(ph => ph.User)
+                    .Where(ph => ph.PaymentType == "output" && ph.StatusPay == 1 
+                    && ph.PaymentMethod == "balance");
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
                     query = query
@@ -41,7 +43,8 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var query = ctx.Pays.Include(ph => ph.User).Where(ph => ph.Type == "OUTPUT" && ph.Status == 1 && ph.Method == "BALANCE");
+                var query = ctx.Pays.Include(ph => ph.User)
+                    .Where(ph => ph.Type == "OUTPUT" && ph.Status == 1 && ph.Method == "BALANCE");
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
                     query = query
@@ -60,7 +63,8 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                var query = ctx.PayHistories.Include(ph => ph.User).Where(ph => ph.PaymentType == "output" && ph.StatusPay == 0 && ph.PaymentMethod == "balance");
+                var query = ctx.PayHistories.Include(ph => ph.User)
+                    .Where(ph => ph.PaymentType == "output" && ph.StatusPay == 0 && ph.PaymentMethod == "balance");
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
                     query = query
@@ -92,7 +96,8 @@ namespace web_panel_api.Controllers
                 var ctx = new clientContext();
                 foreach (var payRequest in request.PayRequests)
                 {
-                    var payRequestDatabase = await ctx.PayHistories.FirstOrDefaultAsync(ph => ph.Id == payRequest.Id);
+                    var payRequestDatabase = await ctx.PayHistories
+                        .FirstOrDefaultAsync(ph => ph.Id == payRequest.Id);
                     if (payRequestDatabase is null)
                         throw new ArgumentNullException(nameof(payRequestDatabase));
                     _mapper.Map(payRequest, payRequestDatabase);

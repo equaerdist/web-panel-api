@@ -24,10 +24,13 @@ namespace web_panel_api.Services
                     break;
             }
             if (statusFlag == 1)
-                result = user => user.ReferralsTreeParents.Count(t => t.Children.Status == status);
+                result = user => user.ReferralsTreeParents.Count(t => t.Children.StatusTariff == status);
             else
             {
-                result = user => user.UsersKeys.FirstOrDefault(uk => uk.Status == 1) != null ? user.UsersKeys.First(uk => uk.Status == 1).DateEnd : DateOnly.MinValue;
+                result = user => user.UsersKeys
+                .FirstOrDefault(uk => uk.Status == 1 && uk.DateEnd != null) != null
+                ? user.UsersKeys.First(uk => uk.Status == 1 && uk.DateEnd != null).DateEnd 
+                : DateOnly.MinValue;
             }
 
 

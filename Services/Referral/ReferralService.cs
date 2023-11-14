@@ -18,9 +18,9 @@ namespace web_panel_api.Services.Referral
                 int notActive = 0;
                 foreach (var tree in user.ReferralsTreeParents)
                 {
-                    if (tree.Children.Status == 1)
+                    if (tree.Children.StatusTariff == 1)
                         activeAmount++;
-                    else if (tree.Children.Status == 0)
+                    else if (tree.Children.StatusTariff == 0)
                         notActive++;
                 }
                 var temporary = _mapper.Map<GetReferralDto>(user);

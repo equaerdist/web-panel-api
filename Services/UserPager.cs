@@ -11,7 +11,9 @@ namespace web_panel_api.Services
             Expression<Func<User, object>> keySelectorSecond = sortParam switch
             {
                 _ => user => user.UsersKeys
-                .FirstOrDefault(uk => uk.Status == 1) == null ? DateTime.MinValue : user.UsersKeys.First(uk => uk.Status == 1).DateEnd
+                .FirstOrDefault(uk => uk.Status == 1 && uk.DateEnd != null) != null
+                ? user.UsersKeys.First(uk => uk.Status == 1 && uk.DateEnd != null).DateEnd
+                : DateOnly.MinValue
             };
             if (sortOrder == "desc")
                 query = query.OrderByDescending(keySelectorSecond);
