@@ -25,9 +25,9 @@ namespace web_panel_api.Controllers
             {
                 var context = new clientContext();
                 var all = context.PayHistories
-                    .Where(e => e.PaymentMethod != "referrals" && e.PaidAt != null && e.StatusPay == 1);
+                    .Where(e => e.PaymentMethod != "referrals" && e.CreateAt != null && e.StatusPay == 1);
                 if (offset == "interval")
-                    all = all.Where(e => e.PaidAt >= info.FirstTime && e.PaidAt <= info.LastTime);
+                    all = all.Where(e => e.CreateAt >= info.FirstTime && e.CreateAt <= info.LastTime);
                 var temp = all.AsEnumerable()
                                 .GroupBy(e => e.PaymentType)
                                 .ToLookup(g => g.Key, g => g.GroupBy(ph => ph.Currency)
@@ -40,9 +40,9 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var all = ctx.Pays.Where(e => e.Method != "REFERRALS" && e.PaidAt != null && e.Status == 1);
+                var all = ctx.Pays.Where(e => e.Method != "REFERRALS" && e.CreatedAt != null && e.Status == 1);
                 if (offset == "interval")
-                    all = all.Where(e => e.PaidAt >= info.FirstTime && e.PaidAt <= info.LastTime);
+                    all = all.Where(e => e.CreatedAt >= info.FirstTime && e.CreatedAt <= info.LastTime);
                 var temp = all.AsEnumerable()
                     .GroupBy(e => e.Type)
                     .ToLookup(g => g.Key, g => g.GroupBy(ph => ph.Currency).ToLookup(phc => phc.Key, phc => phc.Sum(el => el.Price)));
