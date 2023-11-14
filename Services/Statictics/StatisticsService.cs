@@ -57,10 +57,10 @@ namespace web_panel_api.Services.Statictics
                 result.AmountOfCreatedUsers = temporary
                     .GroupBy(u => u.CreatedAt).Select(g => new DatePoint(g.Key, g.Count())).OrderBy(dt => dt.Time);
 
-                var payHistories = ctx.PayHistories.Where(ph => ph.PaidAt != null && ph.PaymentMethod == "tariff");
+                var payHistories = ctx.PayHistories.Where(ph => ph.CreateAt != null && ph.PaymentMethod == "tariff" && ph.StatusPay == 1);
                 if (offset == "interval")
                     payHistories = payHistories
-                        .Where(ph => ph.PaidAt <= dates.LastTime && ph.PaidAt >= dates.FirstTime);
+                        .Where(ph => ph.CreateAt <= dates.LastTime && ph.CreateAt >= dates.FirstTime);
 
                 var temp = payHistories.AsEnumerable()
                   .GroupBy(ph => ph.Currency);
@@ -68,8 +68,8 @@ namespace web_panel_api.Services.Statictics
                 foreach (var currencyGroup in temp)
                     foreach (var transaction in currencyGroup)
                     {
-                        if (transaction.PaidAt is null) throw new ArgumentNullException();
-                        transaction.PaidAt = DateGrouper.GroupDate(group, (DateTime)transaction.PaidAt);
+                        if (transaction.CreateAt is null) throw new ArgumentNullException();
+                        transaction.CreateAt = DateGrouper.GroupDate(group, (DateTime)transaction.CreateAt);
                     }
 
                 var tempDictionary = new Dictionary<string, IEnumerable<DatePoint>>();
@@ -78,7 +78,7 @@ namespace web_panel_api.Services.Statictics
                 {
                     var datePointWhoPaidList = new List<DatePoint>();
                     List<DatePoint> datePointOfSumPaid = new();
-                    var temporaryGroup = currencyGroup.AsEnumerable().GroupBy(ph => ph.PaidAt);
+                    var temporaryGroup = currencyGroup.AsEnumerable().GroupBy(ph => ph.CreateAt);
                     foreach (var dateGroup in temporaryGroup)
                     {
                         if (dateGroup.Key is null) throw new ArgumentNullException();

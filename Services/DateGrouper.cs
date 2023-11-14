@@ -21,6 +21,14 @@ namespace web_panel_api.Services
             return new DateTime(
             dateTime.Year, 1, 1);
         }
+        private static DateTime GroupByWeek(DateTime dateTime)
+        {
+          
+            DateTime firstDayOfWeek = dateTime.Date.AddDays(-(int)dateTime.DayOfWeek);
+
+            return new DateTime(firstDayOfWeek.Year, firstDayOfWeek.Month, firstDayOfWeek.Day);
+        }
+
         public static  DateTime GroupDate(string group, DateTime manip)
         {
             var result = new DateTime();
@@ -32,6 +40,8 @@ namespace web_panel_api.Services
                     result = DateGrouper.GroupByMonth(manip); break;
                 case "year":
                     result = DateGrouper.GroupByYear(manip); break;
+                case "week":
+                    result = GroupByWeek(manip);break;
                 default:
                     throw new ArgumentException();
             }
