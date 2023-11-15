@@ -29,7 +29,7 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                IQueryable<User> query = ctx.Users.Include(u => u.UsersKeys).AsQueryable();
+                IQueryable<User> query = ctx.Users.AsNoTracking().Include(u => u.UsersKeys).AsQueryable();
                 if (!string.IsNullOrEmpty(searchTerm))
                     query = query.Where(u =>
                     (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
@@ -50,7 +50,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                IQueryable<web_panel_api.Models.god_eyes.User> query = ctx.Users.AsQueryable();
+                IQueryable<web_panel_api.Models.god_eyes.User> query = ctx.Users.AsNoTracking().AsQueryable();
                 if (!string.IsNullOrEmpty(searchTerm))
                     query = query.Where(u =>
                     (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
@@ -64,12 +64,19 @@ namespace web_panel_api.Controllers
         public async Task<IEnumerable<GetUserDto>> GetUserForDemoPeriod(int page, int pageSize, string sortParam, string sortOrder, string? searchTerm)
         {
             var ctx = new clientContext();
-            var query = ctx.Users.Where(u => u.IsFree == 0);
+            var query = ctx.Users.AsNoTracking().Where(u => u.IsFree == 0);
             if (!string.IsNullOrEmpty(searchTerm))
                 query = query.Where(u =>
                 (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
-
-            var result = await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+            IEnumerable<User> result;
+            try
+            {
+                result = await Pager<User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+            }
+            catch
+            {
+                result = await UserPager.GetPagedUserForVpnService(query, sortParam, sortOrder, page, pageSize);
+            }
             return _mapper.Map<IEnumerable<GetUserDto>>(result);
         }
         [HttpGet("referrals")]
@@ -158,7 +165,7 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                var query = await ctx.Users.Where(u => u.CreatedAt >= info.FirstTime && u.CreatedAt <= info.LastTime).ToListAsync();
+                var query = await ctx.Users.AsNoTracking().Where(u => u.CreatedAt >= info.FirstTime && u.CreatedAt <= info.LastTime).ToListAsync();
                 var dto = _mapper.Map<List<GetUserDto>>(query);
                 var result = await _prst.GenerateFileBytes<GetUserDto>(dto);
                 return File(result, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
@@ -166,7 +173,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var query = await ctx.Users.Where(u => u.CreatedAt >= info.FirstTime && u.CreatedAt <= info.LastTime).ToListAsync();
+                var query = await ctx.Users.AsNoTracking().Where(u => u.CreatedAt >= info.FirstTime && u.CreatedAt <= info.LastTime).ToListAsync();
                 var dto = _mapper.Map<List<GetUserDto>>(query);
                 var result = await _prst.GenerateFileBytes<GetUserDto>(dto);
                 return File(result, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");

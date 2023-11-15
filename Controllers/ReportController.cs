@@ -25,6 +25,7 @@ namespace web_panel_api.Controllers
             {
                 var context = new clientContext();
                 var all = context.PayHistories
+                    .AsNoTracking()
                     .Where(e => e.PaymentMethod != "referrals" && e.CreateAt != null && e.StatusPay == 1);
                 if (offset == "interval")
                     all = all.Where(e => e.CreateAt >= info.FirstTime && e.CreateAt <= info.LastTime);
@@ -40,7 +41,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var all = ctx.Pays.Where(e => e.Method != "REFERRALS" && e.CreatedAt != null && e.Status == 1);
+                var all = ctx.Pays.AsNoTracking().Where(e => e.Method != "REFERRALS" && e.CreatedAt != null && e.Status == 1);
                 if (offset == "interval")
                     all = all.Where(e => e.CreatedAt >= info.FirstTime && e.CreatedAt <= info.LastTime);
                 var temp = all.AsEnumerable()
@@ -67,7 +68,7 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                foreach (var ph in await ctx.PayHistories.Where(ph => ph.StatusPay == 1).ToListAsync())
+                foreach (var ph in await ctx.PayHistories.AsNoTracking().Where(ph => ph.StatusPay == 1).ToListAsync())
                 {
                     switch (ph.Currency)
                     {
@@ -113,7 +114,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                foreach (var ph in await ctx.Pays.Where(ph => ph.Status == 1).ToListAsync())
+                foreach (var ph in await ctx.Pays.AsNoTracking().Where(ph => ph.Status == 1).ToListAsync())
                 {
                     switch (ph.Currency)
                     {
@@ -175,7 +176,7 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                foreach (var user in await ctx.Users.ToListAsync())
+                foreach (var user in await ctx.Users.AsNoTracking().ToListAsync())
                 {
                     result.All++;
                     if (user.IsReplay == 1)
@@ -189,7 +190,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                foreach(var user in await ctx.Users.ToListAsync())
+                foreach(var user in await ctx.Users.AsNoTracking().ToListAsync())
                 {
                     result.All++;
                     if (user.IsReplay == true)

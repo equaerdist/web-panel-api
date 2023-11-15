@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks.Dataflow;
 using web_panel_api.Dto;
 using web_panel_api.Models;
@@ -7,6 +9,9 @@ namespace web_panel_api.Services.Statictics
 {
     public class StatisticsService : IStatisticsService
     {
+        private readonly IMapper _mapper;
+
+        public StatisticsService(IMapper mapper) { _mapper = mapper; }
         private static void MapDataFromPaidAmountDictionary(GetStaticticsDto result, Dictionary<string, IEnumerable<DatePoint>> tempDictionary)
         {
             if (tempDictionary.ContainsKey("RUB"))
@@ -57,7 +62,9 @@ namespace web_panel_api.Services.Statictics
                 result.AmountOfCreatedUsers = temporary
                     .GroupBy(u => u.CreatedAt).Select(g => new DatePoint(g.Key, g.Count())).OrderBy(dt => dt.Time);
 
-                var payHistories = ctx.PayHistories.Where(ph => ph.CreateAt != null && ph.PaymentMethod == "tariff" && ph.StatusPay == 1);
+                var payHistories = ctx.PayHistories
+                    .Where(ph => ph.CreateAt != null && ph.PaymentMethod == "tariff" 
+                && ph.StatusPay == 1);
                 if (offset == "interval")
                     payHistories = payHistories
                         .Where(ph => ph.CreateAt <= dates.LastTime && ph.CreateAt >= dates.FirstTime);
@@ -117,10 +124,10 @@ namespace web_panel_api.Services.Statictics
                 result.AmountOfCreatedUsers = temporary
                     .GroupBy(u => u.CreatedAt).Select(g => new DatePoint(g.Key, g.Count())).OrderBy(dt => dt.Time);
 
-                var payHistories = ctx.Pays.Where(ph => ph.PaidAt != null && ph.Method == "TARIFF");
+                var payHistories = ctx.Pays.Where(ph => ph.CreatedAt != null && ph.Method == "TARIFF" && ph.Status == 1);
                 if (offset == "interval")
                     payHistories = payHistories
-                        .Where(ph => ph.PaidAt <= dates.LastTime && ph.PaidAt >= dates.FirstTime);
+                        .Where(ph => ph.CreatedAt <= dates.LastTime && ph.CreatedAt >= dates.FirstTime);
 
                 var temp = payHistories.AsEnumerable()
                   .GroupBy(ph => ph.Currency);
@@ -128,8 +135,8 @@ namespace web_panel_api.Services.Statictics
                 foreach (var currencyGroup in temp)
                     foreach (var transaction in currencyGroup)
                     {
-                        if (transaction.PaidAt is null) throw new ArgumentNullException();
-                        transaction.PaidAt = DateGrouper.GroupDate(group, (DateTime)transaction.PaidAt);
+                        if (transaction.CreatedAt is null) throw new ArgumentNullException();
+                        transaction.CreatedAt = DateGrouper.GroupDate(group, (DateTime)transaction.CreatedAt);
                     }
 
                 var tempDictionary = new Dictionary<string, IEnumerable<DatePoint>>();
@@ -138,7 +145,7 @@ namespace web_panel_api.Services.Statictics
                 {
                     var datePointWhoPaidList = new List<DatePoint>();
                     List<DatePoint> datePointOfSumPaid = new();
-                    var temporaryGroup = currencyGroup.AsEnumerable().GroupBy(ph => ph.PaidAt);
+                    var temporaryGroup = currencyGroup.AsEnumerable().GroupBy(ph => ph.CreatedAt);
                     foreach (var dateGroup in temporaryGroup)
                     {
                         if (dateGroup.Key is null) throw new ArgumentNullException();

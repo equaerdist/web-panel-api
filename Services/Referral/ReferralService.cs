@@ -62,13 +62,14 @@ namespace web_panel_api.Services.Referral
 
                 if (string.IsNullOrEmpty(searchTerm))
                     query = ctx.Users
+                        .AsNoTracking()
                         .Include(u => u.ReferralsTreeChildren)
                         .Where(u => u.ReferralsTreeChildren.Count == 0)
                         .Include(u => u.ReferralsTreeParents)
                         .ThenInclude(t => t.Children)
                         .Include(u => u.UsersKeys);
                 else
-                    query = ctx.ReferralsTrees
+                    query = ctx.ReferralsTrees.AsNoTracking()
                         .Include(t => t.Parent)
                         .Where(t => (t.Parent.Username != null && t.Parent.Username.Equals(searchTerm))
                         || (t.Parent.FirstName != null && t.Parent.FirstName.Equals(searchTerm)))
@@ -101,13 +102,14 @@ namespace web_panel_api.Services.Referral
 
                 if (string.IsNullOrEmpty(searchTerm))
                     query = ctx.Users
+                        .AsNoTracking()
                         .Include(u => u.ReferralChild)
                         .ThenInclude(r => r.Parent)
                         .Where(u => u.ReferralChild.Parent == null)
                         .Include(u => u.ReferralParents)
                         .ThenInclude(t => t.Child);
                 else
-                    query = ctx.Referrals
+                    query = ctx.Referrals.AsNoTracking()
                         .Include(t => t.Parent)
                         .Where(t => t.Parent != null && 
                         ((t.Parent.Username != null && t.Parent.Username.Equals(searchTerm)) 
