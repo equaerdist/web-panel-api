@@ -16,8 +16,10 @@ namespace web_panel_api.Models.god_eyes
         {
         }
 
+        public virtual DbSet<Balance> Balances { get; set; } = null!;
         public virtual DbSet<Client> Clients { get; set; } = null!;
         public virtual DbSet<Pay> Pays { get; set; } = null!;
+        public virtual DbSet<Queue> Queues { get; set; } = null!;
         public virtual DbSet<Referral> Referrals { get; set; } = null!;
         public virtual DbSet<SendMessage> SendMessages { get; set; } = null!;
         public virtual DbSet<Setting> Settings { get; set; } = null!;
@@ -37,6 +39,28 @@ namespace web_panel_api.Models.god_eyes
         {
             modelBuilder.UseCollation("utf8mb4_general_ci")
                 .HasCharSet("utf8mb4");
+
+            modelBuilder.Entity<Balance>(entity =>
+            {
+                entity.HasKey(e => e.UserId)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("balances");
+
+                entity.UseCollation("utf8mb4_unicode_ci");
+
+                entity.Property(e => e.UserId)
+                    .HasColumnType("bigint(20)")
+                    .ValueGeneratedNever()
+                    .HasColumnName("user_id");
+
+                entity.Property(e => e.Value).HasColumnName("value");
+
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.Balance)
+                    .HasForeignKey<Balance>(d => d.UserId)
+                    .HasConstraintName("Balances_ibfk_1");
+            });
 
             modelBuilder.Entity<Client>(entity =>
             {
@@ -84,6 +108,7 @@ namespace web_panel_api.Models.god_eyes
                 entity.HasOne(d => d.IsUsedByNavigation)
                     .WithMany(p => p.Clients)
                     .HasForeignKey(d => d.IsUsedBy)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("Clients_ibfk_1");
             });
 
@@ -104,11 +129,13 @@ namespace web_panel_api.Models.god_eyes
                     .HasColumnName("created_at");
 
                 entity.Property(e => e.Currency)
-                    .HasColumnType("enum('RUB','TON','DEL','USDT')")
+                    .HasColumnType("enum('USDT','TRX','BNB','TON','DEL')")
                     .HasColumnName("currency");
 
+                entity.Property(e => e.Description).HasMaxLength(255);
+
                 entity.Property(e => e.Method)
-                    .HasColumnType("enum('BALANCE','REFERRALS')")
+                    .HasColumnType("enum('BALANCE','REFERRALS','OUTPUT','MESSAGE')")
                     .HasColumnName("method");
 
                 entity.Property(e => e.PaidAt)
@@ -121,10 +148,6 @@ namespace web_panel_api.Models.god_eyes
                     .HasColumnType("int(11)")
                     .HasColumnName("status");
 
-                entity.Property(e => e.Type)
-                    .HasColumnType("enum('INPUT','OUTPUT')")
-                    .HasColumnName("type");
-
                 entity.Property(e => e.UserId)
                     .HasColumnType("bigint(20)")
                     .HasColumnName("user_id");
@@ -132,7 +155,26 @@ namespace web_panel_api.Models.god_eyes
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Pays)
                     .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("Pays_ibfk_1");
+            });
+
+            modelBuilder.Entity<Queue>(entity =>
+            {
+                entity.HasKey(e => e.UserId)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("queue");
+
+                entity.UseCollation("utf8mb4_unicode_ci");
+
+                entity.Property(e => e.UserId)
+                    .HasColumnType("bigint(20)")
+                    .HasColumnName("user_id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created_at");
             });
 
             modelBuilder.Entity<Referral>(entity =>
@@ -162,12 +204,12 @@ namespace web_panel_api.Models.god_eyes
                 entity.HasOne(d => d.Child)
                     .WithOne(p => p.ReferralChild)
                     .HasForeignKey<Referral>(d => d.ChildId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("Referrals_ibfk_1");
 
                 entity.HasOne(d => d.Parent)
                     .WithMany(p => p.ReferralParents)
                     .HasForeignKey(d => d.ParentId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("Referrals_ibfk_2");
             });
 
@@ -198,45 +240,22 @@ namespace web_panel_api.Models.god_eyes
 
             modelBuilder.Entity<Setting>(entity =>
             {
+                entity.HasKey(e => e.Name)
+                    .HasName("PRIMARY");
+
                 entity.ToTable("settings");
 
-                entity.UseCollation("utf8mb4_unicode_ci");
+                entity.Property(e => e.Name)
+                    .HasMaxLength(250)
+                    .HasColumnName("name");
 
-                entity.Property(e => e.Id)
-                    .HasColumnType("bigint(20)")
-                    .HasColumnName("id");
+                entity.Property(e => e.NameUser)
+                    .HasMaxLength(250)
+                    .HasColumnName("name_user");
 
-                entity.Property(e => e.CommissionInputDel).HasColumnName("commission_input_del");
-
-                entity.Property(e => e.CommissionInputRub).HasColumnName("commission_input_rub");
-
-                entity.Property(e => e.CommissionInputTon).HasColumnName("commission_input_ton");
-
-                entity.Property(e => e.CommissionInputUsdt).HasColumnName("commission_input_usdt");
-
-                entity.Property(e => e.CommissionOutputDel).HasColumnName("commission_output_del");
-
-                entity.Property(e => e.CommissionOutputRub).HasColumnName("commission_output_rub");
-
-                entity.Property(e => e.CommissionOutputTon).HasColumnName("commission_output_ton");
-
-                entity.Property(e => e.CommissionOutputUsdt).HasColumnName("commission_output_usdt");
-
-                entity.Property(e => e.MaxOutput).HasColumnName("max_output");
-
-                entity.Property(e => e.MinOutput).HasColumnName("min_output");
-
-                entity.Property(e => e.RefferalRewardLvl1).HasColumnName("refferal_reward_lvl_1");
-
-                entity.Property(e => e.RefferalRewardLvl2).HasColumnName("refferal_reward_lvl_2");
-
-                entity.Property(e => e.RequestCost)
-                    .HasColumnType("bigint(20)")
-                    .HasColumnName("request_cost");
-
-                entity.Property(e => e.UpdatedAt)
-                    .HasColumnType("datetime")
-                    .HasColumnName("updated_at");
+                entity.Property(e => e.Value)
+                    .HasColumnType("json")
+                    .HasColumnName("value");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -276,17 +295,15 @@ namespace web_panel_api.Models.god_eyes
 
             modelBuilder.Entity<Wallet>(entity =>
             {
-                entity.HasKey(e => e.UserId)
-                    .HasName("PRIMARY");
-
                 entity.ToTable("wallets");
 
                 entity.UseCollation("utf8mb4_unicode_ci");
 
-                entity.Property(e => e.UserId)
+                entity.HasIndex(e => e.UserId, "user_id");
+
+                entity.Property(e => e.Id)
                     .HasColumnType("bigint(20)")
-                    .ValueGeneratedNever()
-                    .HasColumnName("user_id");
+                    .HasColumnName("id");
 
                 entity.Property(e => e.Addresse)
                     .HasMaxLength(100)
@@ -299,13 +316,17 @@ namespace web_panel_api.Models.god_eyes
                     .HasColumnName("created_at");
 
                 entity.Property(e => e.Type)
-                    .HasColumnType("enum('TON','USDT_BEP20','DEL','USDT_TRX20')")
+                    .HasColumnType("enum('TON','USDT_BEP20','DEL','USDT_TRC20')")
                     .HasColumnName("type");
 
+                entity.Property(e => e.UserId)
+                    .HasColumnType("bigint(20)")
+                    .HasColumnName("user_id");
+
                 entity.HasOne(d => d.User)
-                    .WithOne(p => p.Wallet)
-                    .HasForeignKey<Wallet>(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .WithMany(p => p.Wallets)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("Wallets_ibfk_1");
             });
 

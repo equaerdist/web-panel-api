@@ -15,6 +15,12 @@ namespace web_panel_api.Controllers
     public class ReportController : Controller
     {
         private readonly IWalletReporter _rpt;
+        const string bnb = "BNB";
+        const string trx = "TRX";
+        const string ton = "TON";
+        const string del = "DEL";
+        const string rub = "RUB";
+        const string usdt = "USDT";
 
         public ReportController(IWalletReporter rpt) { _rpt = rpt; }
 
@@ -41,30 +47,60 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var all = ctx.Pays.AsNoTracking().Where(e => e.Method != "REFERRALS" && e.CreatedAt != null && e.Status == 1);
-                if (offset == "interval")
-                    all = all.Where(e => e.CreatedAt >= info.FirstTime && e.CreatedAt <= info.LastTime);
-                var temp = all.AsEnumerable()
-                    .GroupBy(e => e.Type)
-                    .ToLookup(g => g.Key, g => g.GroupBy(ph => ph.Currency).ToLookup(phc => phc.Key, phc => phc.Sum(el => el.Price)));
-                var frozen = ctx.Wallets.AsEnumerable().GroupBy(w => w.Type)
-                    .ToLookup(g => g.Key, g => g.Sum(we => we.Balance));
-                var result = Task.Run(() => _rpt.GetReport(temp, frozen, project));
-                return await result;
+                var query = ctx.Pays.Where(ph => ph.Status == 1 && ph.CreatedAt != null);
+                if(offset.Equals("interval"))
+                    query = query.Where(ph => ph.CreatedAt >= info.FirstTime && ph.CreatedAt <= info.LastTime);
+                var all = new WalletWrapper();
+                float frozenUsdt = 0;
+                foreach (var ph in query)
+                {
+                    if (ph.Method == "BALANCE")
+                    {
+                        switch (ph.Currency)
+                        {
+                            case trx:
+                                all.TRX += ph.Price ?? 0;
+                                break;
+                            case usdt:
+                                all.USDT += ph.Price ?? 0;
+                                break;
+                            case ton:
+                                all.TON += ph.Price ?? 0;
+                                break;
+                            case del:
+                                all.DEL += ph.Price ?? 0;
+                                break;
+                            case bnb:
+                                all.BNB += ph.Price ?? 0;
+                                break;
+                        }
+                    }
+                    if(ph.Currency == usdt)
+                    {
+                        if (ph.Method == "MESSAGE")
+                            frozenUsdt -= ph.Price ?? 0;
+                        else if(ph.Method == "REFERRALS")
+                            frozenUsdt += ph.Price ?? 0;
+                    }
+                }
+                frozenUsdt += all.USDT ?? 0;
+                float availableUsdt = (all.USDT ?? 0) - frozenUsdt;
+                return new WalletReport()
+                {
+                    All = all,
+                    Frozen = new WalletWrapper() { USDT = frozenUsdt },
+                    Available = new WalletWrapper() { USDT = availableUsdt }
+                };
             }
         }
         [HttpGet("referral")]
         public async Task<ReferralReport> GetReferralAward(string project)
         {
             var result = new ReferralReport();
-            float allRub = 0, allTrx = 0, allTon = 0, allDel = 0, allBnb = 0;
+            float allRub = 0, allTrx = 0, allTon = 0, allDel = 0, allBnb = 0, allUsdt = 0;
             float givenRub = 0, givenBnb = 0, givenTon = 0, givenDel = 0, givenTrx = 0;
             //BNB, TRX, TON,DEL,RUB
-            const string bnb = "BNB";
-            const string trx = "TRX";
-            const string ton = "TON";
-            const string del = "DEL";
-            const string rub = "RUB";
+         
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
@@ -114,58 +150,21 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                foreach (var ph in await ctx.Pays.AsNoTracking().Where(ph => ph.Status == 1).ToListAsync())
-                {
-                    switch (ph.Currency)
-                    {
-                        case rub:
-                            allRub += ph.Price ?? 0;
-                            break;
-                        case trx:
-                            allTrx += ph.Price ?? 0;
-                            break;
-                        case del:
-                            allDel += ph.Price ?? 0;
-                            break;
-                        case ton:
-                            allTon += ph.Price ?? 0;
-                            break;
-                        case bnb:
-                            allBnb += ph.Price ?? 0;
-                            break;
-                    }
-                    if (ph.Method == "REFERRALS")
-                    {
-                        switch (ph.Currency)
-                        {
-                            case rub:
-                                givenRub += ph.Price ?? 0;
-                                break;
-                            case trx:
-                                givenTrx += ph.Price ?? 0;
-                                break;
-                            case del:
-                                givenDel += ph.Price ?? 0;
-                                break;
-                            case ton:
-                                givenTon += ph.Price ?? 0;
-                                break;
-                            case bnb:
-                                givenBnb += ph.Price ?? 0;
-                                break;
-                        }
-                    }
-                }
+                allUsdt = ctx.Pays.AsNoTracking()
+                    .Where(ph => ph.Status == 1 && ph.Currency == usdt && ph.Method == "REFERRALS" && ph.Price != null)
+                    .Sum(ph => ph.Price) ?? 0;
+               
             }
-            result.All = new WalletWrapper { DEL = allDel, RUB = allRub, TRX = allTrx, TON = allTon, BNB = allBnb };
-            result.Given = new WalletWrapper { DEL = givenDel, RUB = givenRub, TRX = givenTrx, TON = givenTon, BNB = givenBnb };
+            result.All = new WalletWrapper { DEL = allDel, RUB = allRub, TRX = allTrx, TON = allTon, BNB = allBnb, USDT = allUsdt };
+            result.Given = new WalletWrapper { DEL = givenDel, RUB = givenRub, TRX = givenTrx, TON = givenTon, BNB = givenBnb, USDT = 0 };
             result.Saved = new WalletWrapper 
             {  
                 DEL = allDel - givenDel, 
                 RUB = allRub - givenRub, 
                 TON = allTon - givenTon, 
                 TRX = allTrx - givenTrx, 
-                BNB = allBnb - givenBnb 
+                BNB = allBnb - givenBnb ,
+                USDT = 0
             };
             return result;
         }

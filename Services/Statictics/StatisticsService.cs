@@ -16,6 +16,8 @@ namespace web_panel_api.Services.Statictics
         {
             if (tempDictionary.ContainsKey("RUB"))
                 result.AmountOfRubPaid = tempDictionary["RUB"];
+            else if (tempDictionary.ContainsKey("USDT"))
+                result.AmountOfRubPaid = tempDictionary["USDT"];
             if (tempDictionary.ContainsKey("DEL"))
                 result.AmountOfDelPaid = tempDictionary["DEL"];
             if (tempDictionary.ContainsKey("BNB"))
@@ -30,6 +32,8 @@ namespace web_panel_api.Services.Statictics
         {
             if (tempDictionary.ContainsKey("RUB"))
                 result.AmountOfUsersWhoPayRub = tempDictionary["RUB"];
+            else if (tempDictionary.ContainsKey("USDT"))
+                result.AmountOfUsersWhoPayRub = tempDictionary["USDT"];
             if (tempDictionary.ContainsKey("DEL"))
                 result.AmountOfUsersWhoPayDel = tempDictionary["DEL"];
             if (tempDictionary.ContainsKey("BNB"))
@@ -124,7 +128,7 @@ namespace web_panel_api.Services.Statictics
                 result.AmountOfCreatedUsers = temporary
                     .GroupBy(u => u.CreatedAt).Select(g => new DatePoint(g.Key, g.Count())).OrderBy(dt => dt.Time);
 
-                var payHistories = ctx.Pays.Where(ph => ph.CreatedAt != null && ph.Method == "TARIFF" && ph.Status == 1);
+                var payHistories = ctx.Pays.Where(ph => ph.CreatedAt != null && ph.Method == "BALANCE" && ph.Status == 1);
                 if (offset == "interval")
                     payHistories = payHistories
                         .Where(ph => ph.CreatedAt <= dates.LastTime && ph.CreatedAt >= dates.FirstTime);

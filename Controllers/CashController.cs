@@ -44,7 +44,7 @@ namespace web_panel_api.Controllers
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
                 var query = ctx.Pays.Include(ph => ph.User)
-                    .Where(ph => ph.Type == "OUTPUT" && ph.Status == 1 && ph.Method == "BALANCE");
+                    .Where(ph => ph.Method == "OUTPUT" && ph.Status == 1);
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
                     query = query
@@ -77,7 +77,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                var query = ctx.Pays.Include(ph => ph.User).Where(ph => ph.Type == "OUTPUT" && ph.Status == 0 && ph.Method == "BALANCE");
+                var query = ctx.Pays.Include(ph => ph.User).Where(ph => ph.Method == "OUTPUT" && ph.Status == 0);
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
                     query = query
@@ -113,7 +113,7 @@ namespace web_panel_api.Controllers
                     var payRequestDatabase = await ctx.Pays.FirstOrDefaultAsync(ph => ph.Id == payRequest.Id);
                     if (payRequestDatabase is null)
                         throw new ArgumentNullException(nameof(payRequestDatabase));
-                    payRequestDatabase.Id = payRequest.Id;
+                    payRequestDatabase.Status = payRequest.StatusPay;
                     await ctx.SaveChangesAsync();
                 }
             }

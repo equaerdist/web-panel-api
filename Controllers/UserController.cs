@@ -64,7 +64,7 @@ namespace web_panel_api.Controllers
         public async Task<IEnumerable<GetUserDto>> GetUserForDemoPeriod(int page, int pageSize, string sortParam, string sortOrder, string? searchTerm)
         {
             var ctx = new clientContext();
-            var query = ctx.Users.AsNoTracking().Where(u => u.IsFree == 0);
+            var query = ctx.Users.AsNoTracking().Where(u => u.IsFree == 0 && u.StatusTariff == 0);
             if (!string.IsNullOrEmpty(searchTerm))
                 query = query.Where(u =>
                 (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));

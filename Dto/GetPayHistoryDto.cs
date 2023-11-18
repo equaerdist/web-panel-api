@@ -13,6 +13,7 @@ namespace web_panel_api.Dto
         public DateTime? CreateAt { get; set; }
         public int? Status { get; set; }
         public sbyte? StatusPay { get; set; }
+        public string? Description { get; set; }
 
         public GetUserDto User { get; set; } = null!;
     }

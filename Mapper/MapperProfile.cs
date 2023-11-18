@@ -15,6 +15,7 @@ namespace web_panel_api.Mapper
             CreateMap<User, GetUserDto>();
             CreateMap<PayHistory, GetPayHistoryDto>();
             CreateMap<SettingDto, Setting>();
+            CreateMap<SettingDto, web_panel_api.Models.god_eyes.Setting>();
             CreateMap<AddTariffDto, Tariff>();
             CreateMap<User, UserForStat>();
             CreateMap<PayHistory, PayHistoryForStat>();

@@ -33,10 +33,13 @@ namespace web_panel_api.Controllers
             }
             else
             {
-                //var ctx = new web_panel_api.Models.god_eyes.headContext();
-                //var settings = await ctx.Settings.FirstOrDefaultAsync();
-                //return Ok(settings);
-                throw new ArgumentException();
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                var query = ctx.Settings.AsQueryable();
+                if(!string.IsNullOrEmpty(searchTerm))
+                {
+                    query = query.Where(s => s.NameUser != null && s.NameUser.Contains(searchTerm));
+                }
+                return Ok(await Pager<web_panel_api.Models.god_eyes.Setting>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize));
             }
         }
         [HttpPut]
@@ -52,12 +55,11 @@ namespace web_panel_api.Controllers
             }
             else
             {
-                //var ctx = new web_panel_api.Models.god_eyes.headContext();
-                //var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Id == newSet.Id) ?? throw new ArgumentException("Сущности не существует");
-                //_mpr.Map(newSet, setDb);
-                //await ctx.SaveChangesAsync();
-                //return NoContent();
-                throw new ArgumentException();
+                var ctx = new web_panel_api.Models.god_eyes.headContext();
+                var setDb = await ctx.Settings.FirstOrDefaultAsync(s => s.Name == newSet.Name) ?? throw new ArgumentException("Сущности не существует");
+                _mpr.Map(newSet, setDb);
+                await ctx.SaveChangesAsync();
+                return NoContent();
             }
         }
         [HttpPost("message")]

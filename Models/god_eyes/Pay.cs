@@ -13,7 +13,7 @@ namespace web_panel_api.Models.god_eyes
         public int? Status { get; set; }
         public DateTime? PaidAt { get; set; }
         public DateTime? CreatedAt { get; set; }
-        public string Type { get; set; } = null!;
+        public string? Description { get; set; }
 
         public virtual User? User { get; set; }
     }
