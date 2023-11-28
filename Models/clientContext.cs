@@ -496,13 +496,15 @@ namespace web_panel_api.Models
 
             modelBuilder.Entity<Wallet>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("wallets");
 
                 entity.UseCollation("utf8mb4_unicode_ci");
 
                 entity.HasIndex(e => e.UserId, "user_id");
+
+                entity.Property(e => e.Id)
+                    .HasColumnType("bigint(20)")
+                    .HasColumnName("id");
 
                 entity.Property(e => e.Addresse)
                     .HasMaxLength(255)
@@ -529,7 +531,7 @@ namespace web_panel_api.Models
                     .HasColumnName("user_id");
 
                 entity.HasOne(d => d.User)
-                    .WithMany()
+                    .WithMany(p => p.Wallets)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("wallets_ibfk_1");

@@ -29,7 +29,7 @@ namespace web_panel_api.Controllers
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                IQueryable<User> query = ctx.Users.AsNoTracking().Include(u => u.UsersKeys).AsQueryable();
+                IQueryable<User> query = ctx.Users.AsNoTracking().Include(u => u.UsersKeys).Include(u => u.Wallets).AsQueryable();
                 if (!string.IsNullOrEmpty(searchTerm))
                     query = query.Where(u =>
                     (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
@@ -50,12 +50,19 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                IQueryable<web_panel_api.Models.god_eyes.User> query = ctx.Users.AsNoTracking().AsQueryable();
+                IQueryable<web_panel_api.Models.god_eyes.User> query = ctx.Users.Include(U => U.Wallets).AsNoTracking().AsQueryable();
                 if (!string.IsNullOrEmpty(searchTerm))
                     query = query.Where(u =>
                     (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));
                 IEnumerable<web_panel_api.Models.god_eyes.User> result;
+                try
+                {
                     result = await Pager<web_panel_api.Models.god_eyes.User>.GetPagedEnumerable(query, sortParam, sortOrder, page, pageSize);
+                }
+                catch
+                {
+                    result = await UserPager.GetPagedUserForGodEyes(query, sortParam, sortOrder, page, pageSize);
+                }
                 var temporary = _mapper.Map<IEnumerable<GetUserDto>>(result);
                 return temporary;
             }

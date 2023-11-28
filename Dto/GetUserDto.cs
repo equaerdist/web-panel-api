@@ -16,5 +16,6 @@ namespace web_panel_api.Dto
         public sbyte? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
         public List<UsersKey> UsersKeys { get; set; } = null!;
+        public List<Models.Wallet> Wallets { get; set; } = null!;
     }
 }

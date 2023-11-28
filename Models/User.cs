@@ -13,6 +13,7 @@ namespace web_panel_api.Models
             ReferralsTreeParents = new HashSet<ReferralsTree>();
             UsersKeys = new HashSet<UsersKey>();
             UsersTariffs = new HashSet<UsersTariff>();
+            Wallets = new HashSet<Wallet>();
         }
 
         public long Id { get; set; }
@@ -32,5 +33,6 @@ namespace web_panel_api.Models
         public virtual ICollection<ReferralsTree> ReferralsTreeParents { get; set; }
         public virtual ICollection<UsersKey> UsersKeys { get; set; }
         public virtual ICollection<UsersTariff> UsersTariffs { get; set; }
+        public virtual ICollection<Wallet> Wallets { get; set; }
     }
 }
