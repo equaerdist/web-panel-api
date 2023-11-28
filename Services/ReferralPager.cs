@@ -29,7 +29,7 @@ namespace web_panel_api.Services
             {
                 result = user => user.UsersKeys
                 .FirstOrDefault(uk => uk.Status == 1 && uk.DateEnd != null) != null
-                ? user.UsersKeys.First(uk => uk.Status == 1 && uk.DateEnd != null).DateEnd 
+                ? user.UsersKeys.First(uk => uk.Status == 1 && uk.DateEnd != null).DateEnd ?? DateOnly.MaxValue
                 : DateOnly.MinValue;
             }
 

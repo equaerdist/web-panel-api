@@ -36,8 +36,8 @@ namespace web_panel_api.Services
             } ;
             if(group != null && group.Length > 1 && group[0].Equals("wallet"))
             {
-                keySelectorSecond = user => user.Wallets.FirstOrDefault(w => w.Type == group[1]) != null
-                ? user.Wallets.First(w => w.Equals(group[1])).Balance  ?? 0 : 0;
+                keySelectorSecond = user => user.Wallets.FirstOrDefault(w => w.Currency == group[1]) != null
+                ? user.Wallets.First(w => w.Currency == (group[1])).Balance  ?? 0 : 0;
             }
             if (sortOrder == "desc")
                 query = query.OrderByDescending(keySelectorSecond);

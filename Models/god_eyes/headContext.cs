@@ -30,7 +30,6 @@ namespace web_panel_api.Models.god_eyes
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseMySql("host=localhost;port=3306;database=head;uid=root;convertzerodatetime=True", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.27-mariadb"));
             }
         }
@@ -305,9 +304,9 @@ namespace web_panel_api.Models.god_eyes
                     .HasColumnType("bigint(20)")
                     .HasColumnName("id");
 
-                entity.Property(e => e.Addresse)
+                entity.Property(e => e.Address)
                     .HasMaxLength(100)
-                    .HasColumnName("addresse");
+                    .HasColumnName("address");
 
                 entity.Property(e => e.Balance).HasColumnName("balance");
 
@@ -315,9 +314,9 @@ namespace web_panel_api.Models.god_eyes
                     .HasColumnType("datetime")
                     .HasColumnName("created_at");
 
-                entity.Property(e => e.Type)
-                    .HasColumnType("enum('TON','USDT_BEP20','DEL','USDT_TRC20')")
-                    .HasColumnName("type");
+                entity.Property(e => e.Currency)
+                    .HasColumnType("enum('USDT','TON','DEL','BNB','TRX')")
+                    .HasColumnName("currency");
 
                 entity.Property(e => e.UserId)
                     .HasColumnType("bigint(20)")
@@ -327,7 +326,7 @@ namespace web_panel_api.Models.god_eyes
                     .WithMany(p => p.Wallets)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("Wallets_ibfk_1");
+                    .HasConstraintName("wallets_ibfk_1");
             });
 
             OnModelCreatingPartial(modelBuilder);
