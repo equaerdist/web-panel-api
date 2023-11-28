@@ -24,6 +24,7 @@ namespace web_panel_api.Mapper
             CreateMap<web_panel_api.Models.god_eyes.User, GetUserDto>();
             CreateMap<SettingDto, web_panel_api.Models.god_eyes.Setting>();
             CreateMap<web_panel_api.Models.god_eyes.Pay, GetPayHistoryDto>();
+            CreateMap<web_panel_api.Models.god_eyes.User, GetGodUserDto>();
         }
 
     }

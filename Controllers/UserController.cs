@@ -24,7 +24,7 @@ namespace web_panel_api.Controllers
 
         public UserController(IMapper mapper, IPresenter prst, IReferralService refServc) { _mapper = mapper; _prst = prst; _refSrvc = refServc; }
         [HttpGet()]
-        public async Task<IEnumerable<GetUserDto>> GetUsers(int page, int pageSize, string? searchTerm, string sortParam, string sortOrder, string project)
+        public async Task<IActionResult> GetUsers(int page, int pageSize, string? searchTerm, string sortParam, string sortOrder, string project)
         {
             if (project.Equals("poleteli_vpn"))
             {
@@ -45,7 +45,7 @@ namespace web_panel_api.Controllers
                 var temporary = _mapper.Map<IEnumerable<GetUserDto>>(result);
                 foreach (var user in temporary)
                     user.UsersKeys = user.UsersKeys.Where(uk => uk.Status == 1).ToList();
-                return temporary;
+                return Ok(temporary);
             }
             else
             {
@@ -63,8 +63,8 @@ namespace web_panel_api.Controllers
                 {
                     result = await UserPager.GetPagedUserForGodEyes(query, sortParam, sortOrder, page, pageSize);
                 }
-                var temporary = _mapper.Map<IEnumerable<GetUserDto>>(result);
-                return temporary;
+                var temporary = _mapper.Map<IEnumerable<GetGodUserDto>>(result);
+                return Ok(temporary);
             }
         }
         [HttpGet("demo")]
