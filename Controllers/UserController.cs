@@ -50,7 +50,7 @@ namespace web_panel_api.Controllers
             else
             {
                 var ctx = new web_panel_api.Models.god_eyes.headContext();
-                IQueryable<web_panel_api.Models.god_eyes.User> query = ctx.Users.Include(U => U.Wallets).AsNoTracking().AsQueryable();
+                IQueryable<web_panel_api.Models.god_eyes.User> query = ctx.Users.Include(U => U.Balance).AsNoTracking().AsQueryable();
                 if (!string.IsNullOrEmpty(searchTerm))
                     query = query.Where(u =>
                     (u.Username != null && u.Username.Contains(searchTerm)) || (u.FirstName != null && u.FirstName.Contains(searchTerm)));

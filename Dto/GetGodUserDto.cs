@@ -13,6 +13,6 @@ namespace web_panel_api.Dto
         public bool? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
 
-        public virtual List<Wallet> Wallets { get; set; } = null!;
+        public Balance Balance { get; set; } = null!;
     }
 }
