@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.Drawing.Chart.ChartEx;
+using System.Diagnostics.Eventing.Reader;
 using web_panel_api.Dto;
 using web_panel_api.Models;
 using web_panel_api.Services;
@@ -32,7 +33,7 @@ namespace web_panel_api.Controllers
                 var context = new clientContext();
                 var all = context.PayHistories
                     .AsNoTracking()
-                    .Where(e => e.PaymentMethod != "referrals" && e.CreateAt != null && e.StatusPay == 1);
+                    .Where(e => e.PaymentMethod != "referral" && e.CreateAt != null && e.StatusPay == 1);
                 if (offset == "interval")
                     all = all.Where(e => e.CreateAt >= info.FirstTime && e.CreateAt <= info.LastTime);
                 var temp = all.AsEnumerable()
@@ -99,12 +100,13 @@ namespace web_panel_api.Controllers
             var result = new ReferralReport();
             float allRub = 0, allTrx = 0, allTon = 0, allDel = 0, allBnb = 0, allUsdt = 0;
             float givenRub = 0, givenBnb = 0, givenTon = 0, givenDel = 0, givenTrx = 0;
+            float savedRub =0, savedBnb =0, savedTon =0, savedDel =0, savedTrx = 0;
             //BNB, TRX, TON,DEL,RUB
          
             if (project.Equals("poleteli_vpn"))
             {
                 var ctx = new clientContext();
-                foreach (var ph in await ctx.PayHistories.AsNoTracking().Where(ph => ph.StatusPay == 1).ToListAsync())
+                foreach (var ph in await ctx.PayHistories.AsNoTracking().Where(ph => ph.StatusPay == 1 && ph.PaymentMethod == "referral").ToListAsync())
                 {
                     switch (ph.Currency)
                     {
@@ -124,7 +126,8 @@ namespace web_panel_api.Controllers
                             allDel += ph.Price ?? 0;
                             break;
                     }
-                    if (ph.PaymentMethod == "referrals")
+                    
+                    if (ph.PaymentType == "output")
                     {
                         switch (ph.Currency)
                         {
@@ -145,6 +148,27 @@ namespace web_panel_api.Controllers
                                 break;
                         }
                     }
+                    else if(ph.PaymentType == "input")
+                    {
+                        switch (ph.Currency)
+                        {
+                            case rub:
+                                savedRub += ph.Price ?? 0;
+                                break;
+                            case bnb:
+                                savedBnb += ph.Price ?? 0;
+                                break;
+                            case del:
+                                savedDel += ph.Price ?? 0;
+                                break;
+                            case ton:
+                                savedTon += ph.Price ?? 0;
+                                break;
+                            case trx:
+                                savedTrx += ph.Price ?? 0;
+                                break;
+                        }
+                    }
                 }
             }
             else
@@ -159,11 +183,11 @@ namespace web_panel_api.Controllers
             result.Given = new WalletWrapper { DEL = givenDel, RUB = givenRub, TRX = givenTrx, TON = givenTon, BNB = givenBnb, USDT = 0 };
             result.Saved = new WalletWrapper 
             {  
-                DEL = allDel - givenDel, 
-                RUB = allRub - givenRub, 
-                TON = allTon - givenTon, 
-                TRX = allTrx - givenTrx, 
-                BNB = allBnb - givenBnb ,
+                DEL = savedDel, 
+                RUB = savedRub, 
+                TON = savedTon, 
+                TRX = savedTrx, 
+                BNB = savedBnb,
                 USDT = 0
             };
             return result;
