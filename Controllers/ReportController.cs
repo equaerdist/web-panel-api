@@ -85,7 +85,7 @@ namespace web_panel_api.Controllers
                     }
                 }
                 frozenUsdt += all.USDT ?? 0;
-                float availableUsdt = (all.USDT ?? 0) - frozenUsdt;
+                float availableUsdt = ((all.USDT ?? 0) - frozenUsdt);
                 return new WalletReport()
                 {
                     All = all,

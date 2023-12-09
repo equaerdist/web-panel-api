@@ -67,8 +67,9 @@ namespace web_panel_api.Services.Statictics
                     .GroupBy(u => u.CreatedAt).Select(g => new DatePoint(g.Key, g.Count())).OrderBy(dt => dt.Time);
 
                 var payHistories = ctx.PayHistories
-                    .Where(ph => ph.CreateAt != null && ph.PaymentMethod == "tariff" 
-                && ph.StatusPay == 1);
+                    .Where(ph => ph.CreateAt != null && (ph.PaymentMethod == "tariff" || ph.PaymentMethod == "referral") 
+                        && ph.PaymentType == "input"
+                        && ph.StatusPay == 1);
                 if (offset == "interval")
                     payHistories = payHistories
                         .Where(ph => ph.CreateAt <= dates.LastTime && ph.CreateAt >= dates.FirstTime);
