@@ -33,7 +33,7 @@ namespace web_panel_api.Controllers
                 var context = new clientContext();
                 var all = context.PayHistories
                     .AsNoTracking()
-                    .Where(e => e.PaymentMethod != "referral" && e.CreateAt != null && e.StatusPay == 1);
+                    .Where(e => e.PaymentMethod != "referral" && e.PaymentMethod != "botbalanc" && e.CreateAt != null && e.StatusPay == 1);
                 if (offset == "interval")
                     all = all.Where(e => e.CreateAt >= info.FirstTime && e.CreateAt <= info.LastTime);
                 var temp = all.AsEnumerable()
