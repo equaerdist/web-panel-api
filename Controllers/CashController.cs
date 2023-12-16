@@ -101,6 +101,7 @@ namespace web_panel_api.Controllers
                     if (payRequestDatabase is null)
                         throw new ArgumentNullException(nameof(payRequestDatabase));
                     _mapper.Map(payRequest, payRequestDatabase);
+                    payRequestDatabase.PaidAt = DateTime.Now;
                     await ctx.SaveChangesAsync();
                 }
                 
@@ -114,6 +115,7 @@ namespace web_panel_api.Controllers
                     if (payRequestDatabase is null)
                         throw new ArgumentNullException(nameof(payRequestDatabase));
                     payRequestDatabase.Status = payRequest.StatusPay;
+                    payRequestDatabase.PaidAt = DateTime.Now;
                     await ctx.SaveChangesAsync();
                 }
             }
